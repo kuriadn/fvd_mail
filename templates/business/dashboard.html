@@ -1,0 +1,251 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Business Dashboard - {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Business Dashboard</h1>
+                    <p class="mt-1 text-sm text-gray-500">{{ organization.name }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{% url 'business:contact_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-user-plus mr-2"></i>Add Contact
+                    </a>
+                    <a href="{% url 'business:project_create' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-plus mr-2"></i>New Project
+                    </a>
+                    <a href="{% url 'business:task_create' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tasks mr-2"></i>Add Task
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-blue-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Contacts</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ contacts|length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <a href="{% url 'business:contact_list' %}" class="text-sm text-blue-600 hover:text-blue-500">View all</a>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-project-diagram text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Projects</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ projects|length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <a href="{% url 'business:project_list' %}" class="text-sm text-green-600 hover:text-green-500">View all</a>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-tasks text-purple-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Tasks</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ tasks|length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <a href="{% url 'business:task_list' %}" class="text-sm text-purple-600 hover:text-purple-500">View all</a>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-alt text-orange-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Documents</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ documents|length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <a href="{% url 'business:document_list' %}" class="text-sm text-orange-600 hover:text-orange-500">View all</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Items Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Contacts -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recent Contacts</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for contact in contacts %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-gray-700">{{ contact.first_name.0 }}{{ contact.last_name.0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ contact.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ contact.email }}</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'business:contact_detail' contact.id %}" class="text-blue-600 hover:text-blue-500 text-sm">View</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-users text-3xl mb-2"></i>
+                        <p>No contacts yet</p>
+                        <a href="{% url 'business:contact_create' %}" class="text-blue-600 hover:text-blue-500">Add your first contact</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Projects -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recent Projects</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for project in projects %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ project.name }}</div>
+                                <div class="text-sm text-gray-500">
+                                    Status: <span class="px-2 py-1 text-xs rounded-full
+                                        {% if project.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif project.status == 'active' %}bg-blue-100 text-blue-800
+                                        {% elif project.status == 'on_hold' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="{% url 'business:project_detail' project.id %}" class="text-green-600 hover:text-green-500 text-sm">View</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-project-diagram text-3xl mb-2"></i>
+                        <p>No projects yet</p>
+                        <a href="{% url 'business:project_create' %}" class="text-green-600 hover:text-green-500">Create your first project</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Tasks -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recent Tasks</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for task in tasks %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
+                                <div class="text-sm text-gray-500">
+                                    Status: <span class="px-2 py-1 text-xs rounded-full
+                                        {% if task.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif task.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                        {% elif task.status == 'review' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                    {% if task.assigned_to %}
+                                        • Assigned to {{ task.assigned_to.get_full_name }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <a href="{% url 'business:task_detail' task.id %}" class="text-purple-600 hover:text-purple-500 text-sm">View</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-tasks text-3xl mb-2"></i>
+                        <p>No tasks yet</p>
+                        <a href="{% url 'business:task_create' %}" class="text-purple-600 hover:text-purple-500">Create your first task</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Documents -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recent Documents</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for document in documents %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-alt text-orange-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ document.title }}</div>
+                                    <div class="text-sm text-gray-500">{{ document.get_category_display }}</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'business:document_detail' document.id %}" class="text-orange-600 hover:text-orange-500 text-sm">View</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-file-alt text-3xl mb-2"></i>
+                        <p>No documents yet</p>
+                        <a href="{% url 'business:document_create' %}" class="text-orange-600 hover:text-orange-500">Upload your first document</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

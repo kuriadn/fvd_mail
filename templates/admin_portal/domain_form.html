@@ -1,0 +1,147 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+            <p class="mt-1 text-sm text-gray-500">Configure domain settings and security features</p>
+        </div>
+
+        <form method="post" class="px-4 py-5 sm:p-6 space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Domain Name</label>
+                    <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}"
+                           value="{{ form.name.value|default:'' }}" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           placeholder="example.com">
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.organization.id_for_label }}" class="block text-sm font-medium text-gray-700">Organization</label>
+                    <select name="{{ form.organization.html_name }}" id="{{ form.organization.id_for_label }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        {% for organization in form.organization %}
+                            <option value="{{ organization.data.value }}" {% if organization.data.selected %}selected{% endif %}>
+                                {{ organization.data.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.organization.errors %}
+                        {% for error in form.organization.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.type.id_for_label }}" class="block text-sm font-medium text-gray-700">Domain Type</label>
+                    <select name="{{ form.type.html_name }}" id="{{ form.type.id_for_label }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        {% for type_option in form.type %}
+                            <option value="{{ type_option.data.value }}" {% if type_option.data.selected %}selected{% endif %}>
+                                {{ type_option.data.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="{{ form.quota.id_for_label }}" class="block text-sm font-medium text-gray-700">Domain Quota (MB)</label>
+                    <input type="number" name="{{ form.quota.html_name }}" id="{{ form.quota.id_for_label }}"
+                           value="{{ form.quota.value|default:0 }}" min="0"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <p class="mt-1 text-sm text-gray-500">0 = unlimited</p>
+                </div>
+
+                <div>
+                    <label for="{{ form.default_mailbox_quota.id_for_label }}" class="block text-sm font-medium text-gray-700">Default Mailbox Quota (MB)</label>
+                    <input type="number" name="{{ form.default_mailbox_quota.html_name }}" id="{{ form.default_mailbox_quota.id_for_label }}"
+                           value="{{ form.default_mailbox_quota.value|default:1024 }}" min="1"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <div>
+                    <label for="{{ form.message_limit.id_for_label }}" class="block text-sm font-medium text-gray-700">Messages per Hour</label>
+                    <input type="number" name="{{ form.message_limit.html_name }}" id="{{ form.message_limit.id_for_label }}"
+                           value="{{ form.message_limit.value|default:0 }}" min="0"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <p class="mt-1 text-sm text-gray-500">0 = unlimited</p>
+                </div>
+
+                <div>
+                    <label for="{{ form.spam_threshold.id_for_label }}" class="block text-sm font-medium text-gray-700">Spam Threshold</label>
+                    <input type="number" name="{{ form.spam_threshold.html_name }}" id="{{ form.spam_threshold.id_for_label }}"
+                           value="{{ form.spam_threshold.value|default:5 }}" min="1" max="10"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Security Features -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Security Features</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="{{ form.enabled.html_name }}" id="{{ form.enabled.id_for_label }}"
+                               {% if form.enabled.value %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="{{ form.enabled.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            Domain Enabled
+                        </label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="{{ form.antivirus.html_name }}" id="{{ form.antivirus.id_for_label }}"
+                               {% if form.antivirus.value %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="{{ form.antivirus.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            Enable Antivirus Scanning
+                        </label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="{{ form.antispam.html_name }}" id="{{ form.antispam.id_for_label }}"
+                               {% if form.antispam.value %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="{{ form.antispam.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            Enable Anti-Spam Filtering
+                        </label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="{{ form.dkim_enabled.html_name }}" id="{{ form.dkim_enabled.id_for_label }}"
+                               {% if form.dkim_enabled.value %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="{{ form.dkim_enabled.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            Enable DKIM Signing
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'admin_portal:domains' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    {% if domain %}Update Domain{% else %}Create Domain{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+

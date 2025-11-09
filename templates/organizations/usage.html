@@ -1,0 +1,178 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Usage Statistics - {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                {{ organization.name }} Usage
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Monitor your organization's resource usage and limits
+            </p>
+        </div>
+    </div>
+
+    <!-- Usage Stats -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+        <!-- Users Usage -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                User Accounts
+                            </dt>
+                            <dd class="mt-1">
+                                <div class="flex items-baseline">
+                                    <span class="text-2xl font-semibold text-gray-900">
+                                        {{ organization.current_users }}
+                                    </span>
+                                    <span class="ml-2 text-sm text-gray-500">
+                                        / {{ organization.max_users }} max
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-indigo-600 h-2 rounded-full"
+                                                 style="width: {{ organization.current_users|mul:100|div:organization.max_users }}%"></div>
+                                        </div>
+                                        <span class="ml-2 text-sm text-gray-500">
+                                            {{ organization.current_users|mul:100|div:organization.max_users }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Usage -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Storage Used
+                            </dt>
+                            <dd class="mt-1">
+                                <div class="flex items-baseline">
+                                    <span class="text-2xl font-semibold text-gray-900">
+                                        {{ storage_usage.used_mb|floatformat:1 }} MB
+                                    </span>
+                                    <span class="ml-2 text-sm text-gray-500">
+                                        / {{ storage_usage.limit_mb|floatformat:0 }} MB
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full"
+                                                 style="width: {{ storage_usage.percentage }}%"></div>
+                                        </div>
+                                        <span class="ml-2 text-sm text-gray-500">
+                                            {{ storage_usage.percentage }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organization Info -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Organization
+                            </dt>
+                            <dd class="mt-1">
+                                <div class="text-sm text-gray-900 font-medium">
+                                    {{ organization.name }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Domain: {{ organization.domain_name }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Since {{ organization.created_at|date:"M j, Y" }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usage Details -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                Usage Breakdown
+            </h3>
+
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Email Accounts</span>
+                        <span class="font-medium">{{ organization.current_users }} / {{ organization.max_users }}</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-indigo-600 h-2 rounded-full"
+                             style="width: {{ organization.current_users|mul:100|div:organization.max_users }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Storage Space</span>
+                        <span class="font-medium">{{ storage_usage.used_mb|floatformat:1 }} MB / {{ storage_usage.limit_mb|floatformat:0 }} MB</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full"
+                             style="width: {{ storage_usage.percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Usage Tips</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Email storage includes attachments and sent messages</li>
+                    <li>• Large attachments count towards your storage limit</li>
+                    <li>• Contact support if you need to increase your limits</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,439 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Compose - Fayvad Mail{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Compose Toolbar -->
+    <div class="bg-white shadow rounded-lg mb-4">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900">Compose Message</h1>
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="saveDraft()"
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Save Draft
+                </button>
+                <a href="{% url 'mail:inbox' %}"
+                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compose Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" enctype="multipart/form-data" class="divide-y divide-gray-200">
+            {% csrf_token %}
+
+            <!-- Recipients -->
+            <div class="p-6 space-y-4">
+                <!-- To, CC, BCC Row -->
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1">
+                            <label for="{{ form.to.id_for_label }}" class="block text-sm font-medium text-gray-700">To</label>
+                            {{ form.to }}
+                            {% if form.to.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.to.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center">
+                            <button type="button" onclick="toggleCCBCC()" id="cc-bcc-toggle"
+                                    class="text-sm text-blue-600 hover:text-blue-800 underline">
+                                CC/BCC
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible CC/BCC Row -->
+                    <div id="cc-bcc-row" class="hidden space-y-2">
+                        <div class="flex space-x-4">
+                            <div class="flex-1">
+                                <label for="{{ form.cc.id_for_label }}" class="block text-sm font-medium text-gray-700">CC</label>
+                                {{ form.cc }}
+                            </div>
+                            <div class="flex-1">
+                                <label for="{{ form.bcc.id_for_label }}" class="block text-sm font-medium text-gray-700">BCC</label>
+                                {{ form.bcc }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Row -->
+                <div>
+                    <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700">Subject</label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.subject.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Message Body -->
+            <div class="p-6">
+                <label for="{{ form.body.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <div class="w-full">
+                    {{ form.body }}
+                </div>
+                {% if form.body.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.body.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Attachments -->
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
+                <div class="space-y-2">
+                    <input type="file" name="attachments" id="id_attachments" multiple
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500">You can attach multiple files. Maximum size per file: 10MB</p>
+                </div>
+                <div id="attachment-preview" class="mt-3 space-y-2"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-6 py-4 bg-gray-50 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span id="auto-save-status" class="text-sm text-gray-500">Draft saved</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="saveDraft()"
+                            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Save Draft
+                    </button>
+                    <button type="submit" id="send-button"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Send Message
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media }}
+<script>
+// Initialize CKEditor
+let editor;
+
+function initializeCKEditor() {
+    const element = document.getElementById('id_body');
+    if (element && typeof ClassicEditor !== 'undefined') {
+        ClassicEditor
+            .create(element, {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', 'strikethrough', '|',
+                    'link', 'bulletedList', 'numberedList', '|',
+                    'fontColor', 'fontBackgroundColor', '|',
+                    'alignment:left', 'alignment:center', 'alignment:right', 'alignment:justify', '|',
+                    'undo', 'redo'
+                ],
+                height: '300px'
+            })
+            .then(editor => {
+                window.emailEditor = editor;
+                console.log('CKEditor initialized successfully');
+            })
+            .catch(error => {
+                console.error('CKEditor initialization failed:', error);
+                // Fallback to basic textarea if CKEditor fails
+            });
+    } else {
+        console.warn('CKEditor or element not found');
+    }
+}
+
+// Wait for CKEditor to load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof ClassicEditor !== 'undefined') {
+        initializeCKEditor();
+    } else {
+        // Wait for script to load
+        setTimeout(initializeCKEditor, 1000);
+    }
+});
+
+function toggleFormat(format) {
+    if (window.emailEditor) {
+        window.emailEditor.execute(format);
+    }
+}
+
+function insertLink() {
+    if (window.emailEditor) {
+        const url = prompt('Enter the URL:');
+        if (url) {
+            window.emailEditor.execute('link', url);
+        }
+    }
+}
+
+// Handle form submission via AJAX for better error handling
+document.addEventListener('DOMContentLoaded', function() {
+    const sendButton = document.getElementById('send-button');
+    const form = sendButton ? sendButton.closest('form') : null;
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            // Get body content from CKEditor
+            if (window.emailEditor) {
+                document.getElementById('id_body').value = window.emailEditor.getData();
+            }
+
+            // Prepare form data
+            const formData = new FormData(form);
+
+            // Disable submit button
+            const submitButton = document.getElementById('send-button');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Sending...';
+
+            // Send via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    }
+                } else {
+                    showNotification(data.message, data.type || 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error sending email:', error);
+                showNotification('Failed to send email. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            });
+        });
+    }
+});
+</script>
+<script>
+// Auto-save functionality
+let autoSaveTimer;
+let lastSavedContent = '';
+
+function autoSave() {
+    const formData = new FormData(document.querySelector('form'));
+    const content = formData.get('subject') + formData.get('body');
+
+    if (content !== lastSavedContent && content.trim()) {
+        // In a real implementation, this would save to the server
+        console.log('Auto-saving draft...');
+        document.getElementById('auto-save-status').textContent = 'Saving...';
+
+        // Simulate save delay
+        setTimeout(() => {
+            lastSavedContent = content;
+            document.getElementById('auto-save-status').textContent = 'Draft saved';
+        }, 500);
+    }
+}
+
+function setupAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSave, 5000); // Auto-save every 5 seconds
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, textarea');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', setupAutoSave);
+    });
+
+    // Attachment preview
+    document.getElementById('id_attachments').addEventListener('change', function(e) {
+        const files = e.target.files;
+        const preview = document.getElementById('attachment-preview');
+
+        preview.innerHTML = '';
+
+        Array.from(files).forEach((file, index) => {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+            fileDiv.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                    </svg>
+                    <span class="text-sm text-gray-700">${file.name}</span>
+                    <span class="text-xs text-gray-500 ml-2">(${formatFileSize(file.size)})</span>
+                </div>
+                <button type="button" onclick="removeAttachment(${index})" class="text-red-600 hover:text-red-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            preview.appendChild(fileDiv);
+        });
+    });
+});
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function removeAttachment(index) {
+    const input = document.getElementById('id_attachments');
+    const dt = new DataTransfer();
+
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== index) dt.items.add(file);
+    });
+
+    input.files = dt.files;
+
+    // Trigger change event to update preview
+    input.dispatchEvent(new Event('change'));
+}
+
+function toggleCCBCC() {
+    const ccBccRow = document.getElementById('cc-bcc-row');
+    const toggleButton = document.getElementById('cc-bcc-toggle');
+
+    if (ccBccRow.classList.contains('hidden')) {
+        ccBccRow.classList.remove('hidden');
+        toggleButton.textContent = 'Hide CC/BCC';
+    } else {
+        ccBccRow.classList.add('hidden');
+        toggleButton.textContent = 'CC/BCC';
+    }
+}
+
+function saveDraft() {
+    const formData = new FormData(document.querySelector('form'));
+    const button = document.querySelector('button[onclick="saveDraft()"]');
+
+    // Disable button during save
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = 'Saving...';
+
+    // Get body content from CKEditor if available, otherwise from form
+    let bodyContent = formData.get('body') || '';
+    if (window.emailEditor) {
+        bodyContent = window.emailEditor.getData();
+    }
+
+    // Convert FormData to plain object for easier handling
+    const data = {
+        to: formData.get('to') || '',
+        cc: formData.get('cc') || '',
+        bcc: formData.get('bcc') || '',
+        subject: formData.get('subject') || '',
+        body: bodyContent,
+        csrfmiddlewaretoken: formData.get('csrfmiddlewaretoken')
+    };
+
+    console.log('Saving draft with data:', data);
+
+    fetch('{% url "mail:save_draft" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': data.csrfmiddlewaretoken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        console.log('Draft save response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Draft save response data:', data);
+        if (data.success) {
+            showNotification('Draft saved successfully!', 'success');
+        } else {
+            showNotification(data.message || 'Failed to save draft', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving draft:', error);
+        showNotification('Failed to save draft', 'error');
+    })
+    .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+        button.innerHTML = originalText;
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const colors = {
+        info: 'bg-blue-600',
+        success: 'bg-green-600',
+        warning: 'bg-yellow-600',
+        error: 'bg-red-600'
+    };
+
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg z-50 max-w-sm`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <span class="flex-1">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white opacity-75 hover:opacity-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+function toggleFormat(format) {
+    // Basic text formatting - in a real implementation, this would use a rich text editor
+    if (window.emailEditor) {
+        window.emailEditor.execute(format);
+    }
+}
+
+function insertLink() {
+    const url = prompt('Enter the URL:');
+    if (url) {
+        if (window.emailEditor) {
+            window.emailEditor.execute('link', url);
+        }
+    }
+}
+</script>
+{% endblock %}

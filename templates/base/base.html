@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fayvad Mail{% endblock %}</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CKEditor -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    {% block navigation %}
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="{% static 'logo.png' %}" alt="Fayvad Mail">
+                        <h1 class="ml-2 text-xl font-bold text-gray-900">Fayvad Mail</h1>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'mail:inbox' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Mail
+                            </a>
+                            <a href="{% url 'business:dashboard' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Business
+                            </a>
+                            {% if user.is_org_admin %}
+                                <a href="{% url 'organizations:dashboard' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                    Organization
+                                </a>
+                            {% endif %}
+                            {% if user.is_system_admin %}
+                                <a href="{% url 'admin_portal:dashboard' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                    Admin Portal
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    {% if user.is_authenticated %}
+                        <!-- Profile dropdown -->
+                        <div class="ml-3 relative">
+                            <div>
+                                <button type="button"
+                                        class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        id="user-menu-button"
+                                        aria-expanded="false"
+                                        aria-haspopup="true"
+                                        onclick="toggleDropdown()">
+                                    <span class="sr-only">Open user menu</span>
+                                    <!-- User Avatar -->
+                                    <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">
+                                            {{ user.get_full_name|default:user.username|first|upper }}
+                                        </span>
+                                    </div>
+                                    <span class="ml-3 text-gray-700 text-sm font-medium">{{ user.get_full_name|default:user.username }}</span>
+                                    <svg class="ml-1 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown menu -->
+                            <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden"
+                                 id="user-menu"
+                                 role="menu"
+                                 aria-orientation="vertical"
+                                 aria-labelledby="user-menu-button">
+                                <div class="py-1" role="none">
+                                    <!-- User info -->
+                                    <div class="px-4 py-2 border-b border-gray-200">
+                                        <p class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            {% if user.is_system_admin %}
+                                                System Administrator
+                                            {% elif user.is_org_admin %}
+                                                Organization Administrator
+                                            {% else %}
+                                                Staff
+                                            {% endif %}
+                                        </p>
+                                    </div>
+
+                                    <!-- Menu items -->
+                                    <a href="{% url 'accounts:password_change' %}"
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                                       role="menuitem">Change Password</a>
+                                    <a href="{% url 'accounts:profile' %}"
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                                       role="menuitem">Profile</a>
+
+                                                                        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                                       role="menuitem">Sign out</button>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-gray-500 hover:text-gray-700">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    <!-- Main content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="bg-{{ message.tags|default:'blue' }}-100 border border-{{ message.tags|default:'blue' }}-400 text-{{ message.tags|default:'blue' }}-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                © 2025 Fayvad Digital. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script>
+        function toggleDropdown() {
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('user-menu');
+            const button = document.getElementById('user-menu-button');
+
+            if (!menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

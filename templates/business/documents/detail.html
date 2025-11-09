@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}
+
+{% block title %}{{ document.title }} - Document{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900">{{ document.title }}</h1>
+            <p class="text-gray-600 mt-2">{{ document.description }}</p>
+            <p class="text-sm text-gray-500 mt-4">Type: {{ document.get_category_display }}</p>
+            <p class="text-sm text-gray-500">Size: {{ document.file_size|filesizeformat }}</p>
+            <a href="{% url 'business:document_list' %}" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">Back to Documents</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

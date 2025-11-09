@@ -1,0 +1,43 @@
+{% extends "base/base.html" %}
+
+{% block title %}Upload Document - Business{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Upload Document</h1>
+            <form method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="text" name="title" required class="mt-1 block w-full border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category" class="mt-1 block w-full border-gray-300 rounded-md">
+                        <option value="contract">Contract</option>
+                        <option value="proposal">Proposal</option>
+                        <option value="invoice">Invoice</option>
+                        <option value="report">Report</option>
+                        <option value="presentation">Presentation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">File</label>
+                    <input type="file" name="file" required class="mt-1 block w-full">
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-orange-600 text-white px-4 py-2 rounded">Upload Document</button>
+                    <a href="{% url 'business:document_list' %}" class="bg-gray-600 text-white px-4 py-2 rounded">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

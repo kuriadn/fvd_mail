@@ -1,0 +1,92 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+            <p class="mt-1 text-sm text-gray-500">Configure organization settings and limits</p>
+        </div>
+
+        <form method="post" class="px-4 py-5 sm:p-6 space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Organization Name</label>
+                <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}"
+                       value="{{ form.name.value|default:'' }}" required
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="Enter organization name">
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.domain_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Domain Name</label>
+                <input type="text" name="{{ form.domain_name.html_name }}" id="{{ form.domain_name.id_for_label }}"
+                       value="{{ form.domain_name.value|default:'' }}" required
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="example.com">
+                {% if form.domain_name.errors %}
+                    {% for error in form.domain_name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.max_users.id_for_label }}" class="block text-sm font-medium text-gray-700">Max Users</label>
+                    <input type="number" name="{{ form.max_users.html_name }}" id="{{ form.max_users.id_for_label }}"
+                           value="{{ form.max_users.value|default:10 }}" min="1" max="1000"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    {% if form.max_users.errors %}
+                        {% for error in form.max_users.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.max_storage_gb.id_for_label }}" class="block text-sm font-medium text-gray-700">Max Storage (GB)</label>
+                    <input type="number" name="{{ form.max_storage_gb.html_name }}" id="{{ form.max_storage_gb.id_for_label }}"
+                           value="{{ form.max_storage_gb.value|default:50 }}" min="1" max="1000"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    {% if form.max_storage_gb.errors %}
+                        {% for error in form.max_storage_gb.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" name="{{ form.is_active.html_name }}" id="{{ form.is_active.id_for_label }}"
+                       {% if form.is_active.value %}checked{% endif %}
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                    Active organization
+                </label>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'admin_portal:organizations' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    {% if organization %}Update Organization{% else %}Create Organization{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+

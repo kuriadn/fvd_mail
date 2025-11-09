@@ -1,0 +1,63 @@
+{% extends "base/base.html" %}
+
+{% block title %}Documents - Business Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Documents</h1>
+                    <p class="mt-1 text-sm text-gray-500">Manage your business documents</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{% url 'business:dashboard' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </a>
+                    <a href="{% url 'business:document_create' %}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-plus mr-2"></i>Upload Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul class="divide-y divide-gray-200">
+                {% for document in documents %}
+                <li>
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-alt text-orange-500 text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ document.title }}</div>
+                                    <div class="text-sm text-gray-500">{{ document.get_category_display }} • {{ document.file_size|filesizeformat }}</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'business:document_detail' document.id %}" class="text-orange-600 hover:text-orange-500 text-sm">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li>
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-file-alt text-3xl mb-2"></i>
+                        <p class="text-lg">No documents yet</p>
+                        <a href="{% url 'business:document_create' %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                            <i class="fas fa-plus mr-2"></i>Upload Document
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

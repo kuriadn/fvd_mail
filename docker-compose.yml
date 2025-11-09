@@ -1,0 +1,32 @@
+services:
+  fayvad_mail:
+    build: .
+    container_name: fayvad_mail_web
+    networks:
+      - fayvad_mail_net
+    ports:
+      - "8005:8000"
+    volumes:
+      - .:/app
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-dev-key-change-in-production
+      - USE_MODOBOA_DB=true
+      - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
+      - FAYVAD_MAIL_DB_USER=fayvad
+      - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
+      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_PORT=5432
+      - FAYVAD_MAIL_API_BASE=https://mail.fayvad.com/fayvad_api
+    command: python manage.py runserver 0.0.0.0:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  staticfiles:
+  media:
+
+networks:
+  fayvad_mail_net:
