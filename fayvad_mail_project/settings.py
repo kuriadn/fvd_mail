@@ -21,12 +21,37 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-nu5zvk0+pear=-1#zzcenau-g4h6b3#@j+*ti-_0q@c9wp6h)2"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-change-in-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'mail.fayvad.com']
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://mail.fayvad.com',
+    'http://localhost:8005',
+    'http://127.0.0.1:8005',
+]
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://mail.fayvad.com',
+    'http://localhost:8005',
+    'http://127.0.0.1:8005',
+]
+
+# CSRF Cookie settings for cross-domain support
+CSRF_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+CSRF_COOKIE_SAMESITE = 'Lax'  # Allow cross-site requests
+CSRF_USE_SESSIONS = False  # Store in cookie, not session
+CSRF_COOKIE_DOMAIN = None  # Allow cookies across subdomains
+
+# Session and Authentication cookies
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_DOMAIN = None
 
 
 # Application definition
@@ -92,11 +117,11 @@ FAYVAD_MAIL_API_BASE = os.environ.get("FAYVAD_MAIL_API_BASE", "https://mail.fayv
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "fayvad_mail_db",
-        "USER": "fayvad",
-        "PASSWORD": "MeMiMo@0207",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("FAYVAD_MAIL_DB_NAME", "fayvad_mail_db"),
+        "USER": os.getenv("FAYVAD_MAIL_DB_USER", "fayvad"),
+        "PASSWORD": os.getenv("FAYVAD_MAIL_DB_PASSWORD", "MeMiMo@0207"),
+        "HOST": os.getenv("FAYVAD_MAIL_DB_HOST", "localhost"),
+        "PORT": os.getenv("FAYVAD_MAIL_DB_PORT", "5432"),
     }
 }
 
