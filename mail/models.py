@@ -225,7 +225,7 @@ class EmailMessage(models.Model):
 class EmailAttachment(models.Model):
     """Email attachment model"""
 
-    message = models.ForeignKey(EmailMessage, on_delete=models.CASCADE, related_name='attachments')
+    message = models.ForeignKey(EmailMessage, on_delete=models.CASCADE, related_name='attachments', null=True, blank=True)
 
     filename = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
@@ -236,12 +236,17 @@ class EmailAttachment(models.Model):
     content_id = models.CharField(max_length=255, blank=True, null=True)
     is_inline = models.BooleanField(default=False)
 
+    # Temporary storage for uploads before email sending
+    is_temporary = models.BooleanField(default=False)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_attachments')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         verbose_name = _('Email Attachment')
         verbose_name_plural = _('Email Attachments')
 
     def __str__(self):
-        return f"{self.filename} ({self.message.subject})"
+        return f"{self.filename} ({self.message.subject if self.message else 'Temporary'})"
 
 
 class Draft(models.Model):

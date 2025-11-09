@@ -19,7 +19,7 @@ services:
       - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
       - FAYVAD_MAIL_DB_HOST=host.docker.internal
       - FAYVAD_MAIL_DB_PORT=5432
-      - FAYVAD_MAIL_API_BASE=https://mail.fayvad.com/fayvad_api
+      - MODOBOA_API_URL=http://host.docker.internal:8000/fayvad_api
     command: python manage.py runserver 0.0.0.0:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"

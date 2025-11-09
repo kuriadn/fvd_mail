@@ -10,6 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from mail.models import EmailAccount, EmailMessage, EmailFolder, EmailAttachment, Draft
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import os
 from organizations.models import Organization
 import json
 import logging
@@ -22,7 +25,7 @@ logger = logging.getLogger(__name__)
 def call_modoboa_api(endpoint, method='GET', data=None, token=None):
     """Call Modoboa API directly"""
     import os
-    modoboa_url = os.getenv('MODOBOA_API_URL', 'https://mail.fayvad.com/fayvad_api')
+    modoboa_url = os.getenv('MODOBOA_API_URL', 'http://localhost:8000/fayvad_api')
     headers = {'Content-Type': 'application/json'}
     if token:
         headers['Authorization'] = f'Token {token}'
@@ -98,39 +101,16 @@ def get_modoboa_emails(token, folder='INBOX', page=1, limit=50):
 def get_folders(request):
     """Get email folders for the current user"""
     try:
-        email_account = get_object_or_404(EmailAccount, user=request.user)
+        # Get user's API token from session/request
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        folders = EmailFolder.objects.filter(account=email_account).order_by('name')
+        token = auth_header[6:]  # Remove 'Token ' prefix
 
-        folder_data = []
-        for folder in folders:
-            folder_data.append({
-                'id': folder.name,
-                'name': folder.display_name,
-                'unread_count': folder.unread_count,
-                'total_count': folder.total_count,
-            })
-
-        # Add default folders if they don't exist
-        default_folders = [
-            {'id': 'INBOX', 'name': 'Inbox', 'unread_count': 0, 'total_count': 0},
-            {'id': 'Sent', 'name': 'Sent', 'unread_count': 0, 'total_count': 0},
-            {'id': 'Drafts', 'name': 'Drafts', 'unread_count': 0, 'total_count': 0},
-            {'id': 'Trash', 'name': 'Trash', 'unread_count': 0, 'total_count': 0},
-            {'id': 'Spam', 'name': 'Spam', 'unread_count': 0, 'total_count': 0},
-        ]
-
-        # Merge with existing folders
-        for default_folder in default_folders:
-            if not any(f['id'] == default_folder['id'] for f in folder_data):
-                folder_data.append(default_folder)
-
-        # Add draft count
-        drafts_folder = next((f for f in folder_data if f['id'] == 'Drafts'), None)
-        if drafts_folder:
-            drafts_folder['total_count'] = Draft.objects.filter(user=request.user).count()
-
-        return Response({'folders': folder_data})
+        # Call Modoboa API
+        result = call_modoboa_api('/email/folders/', 'GET', None, token)
+        return Response(result)
 
     except Exception as e:
         logger.error(f"Error getting folders: {e}")
@@ -141,77 +121,54 @@ def get_folders(request):
 def get_messages(request):
     """Get email messages with pagination and filtering"""
     try:
+        # Get user's API token from request
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        token = auth_header[6:]  # Remove 'Token ' prefix
+
         # Get query parameters
         folder_name = request.GET.get('folder', 'INBOX')
         page = int(request.GET.get('page', 1))
         limit = min(int(request.GET.get('limit', 50)), 100)  # Max 100 per page
 
-        # For now, return mock data to make the interface work
-        # TODO: Replace with actual Modoboa integration when external server is available
-        if folder_name == 'INBOX':
-            message_data = [
-                {
-                    'id': '1',
-                    'subject': 'Welcome to Fayvad Mail',
-                    'sender': 'welcome@fayvad.com',
-                    'from_display': 'Fayvad Support',
-                    'body_text': 'Welcome to your new email account! This is a test message.',
-                    'date_received': '2025-01-09T10:00:00Z',
-                    'is_read': False,
-                    'has_attachments': False,
-                    'folder': 'INBOX',
-                    'message_id': '1',
-                    'snippet': 'Welcome to your new email account!...',
-                },
-                {
-                    'id': '2',
-                    'subject': 'Test Email 2',
-                    'sender': 'test@fayvad.com',
-                    'from_display': 'Test User',
-                    'body_text': 'This is another test email to populate your inbox.',
-                    'date_received': '2025-01-08T15:30:00Z',
-                    'is_read': True,
-                    'has_attachments': False,
-                    'folder': 'INBOX',
-                    'message_id': '2',
-                    'snippet': 'This is another test email...',
-                }
-            ]
-        elif folder_name == 'Sent':
-            message_data = [
-                {
-                    'id': '3',
-                    'subject': 'Re: Welcome Email',
-                    'sender': request.user.email,
-                    'from_display': request.user.get_full_name() or request.user.username,
-                    'body_text': 'Thank you for the welcome message!',
-                    'date_received': '2025-01-09T11:00:00Z',
-                    'is_read': True,
-                    'has_attachments': False,
-                    'folder': 'Sent',
-                    'message_id': '3',
-                    'snippet': 'Thank you for the welcome message!...',
-                }
-            ]
-        else:
-            message_data = []
-
-        # Calculate pagination info
-        total_count = len(message_data)
-        has_next = total_count >= limit
-        has_prev = page > 1
-
-        return Response({
-            'messages': message_data,
-            'total': total_count,
-            'page': page,
-            'has_next': has_next,
-            'has_prev': has_prev,
-        })
+        # Call Modoboa API
+        params = f'?folder={folder_name}&limit={limit}&page={page}'
+        result = call_modoboa_api(f'/email/messages/{params}', 'GET', None, token)
+        return Response(result)
 
     except Exception as e:
         logger.error(f"Error getting messages: {e}")
         return Response({'error': 'Failed to retrieve messages'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def email_auth(request):
+    """Authenticate email service credentials"""
+    try:
+        # Get user's API token from request
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        token = auth_header[6:]  # Remove 'Token ' prefix
+
+        # Get email credentials from request
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not email or not password:
+            return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Call Modoboa API
+        data = {'email': email, 'password': password}
+        result = call_modoboa_api('/email/auth/', 'POST', data, token)
+        return Response(result)
+
+    except Exception as e:
+        logger.error(f"Error authenticating email: {e}")
+        return Response({'error': 'Email authentication failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -271,18 +228,12 @@ def send_email(request):
     try:
         logger.info(f"Send email request data: {request.data}")
 
-        # Get user's API token
-                # Get Modoboa token from authentication
-        from .auth import get_modoboa_token
+        # Get user's API token from request
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         if not auth_header.startswith('Token '):
-            logger.error("No authorization header")
             return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        session_token = auth_header[6:]  # Remove 'Token ' prefix
-        # For mock functionality, skip Modoboa token requirement
-        # TODO: Re-enable when external Modoboa server is available
-        token = None
+        token = auth_header[6:]  # Remove 'Token ' prefix
 
         # Parse email data
         to_emails = request.data.get('to_emails', [])
@@ -298,30 +249,16 @@ def send_email(request):
 
         # Format email data for Modoboa API
         email_data = {
-            'to': [{'address': email} for email in to_emails],
-            'cc': [{'address': email} for email in cc_emails] if cc_emails else [],
-            'bcc': [{'address': email} for email in bcc_emails] if bcc_emails else [],
+            'to_emails': to_emails,
+            'cc_emails': cc_emails,
+            'bcc_emails': bcc_emails,
             'subject': subject,
-            'body': {
-                'text': body,
-                'html': body  # For now, use same content for both
-            }
+            'body': body
         }
 
-        # For now, mock email sending to make the interface work
-        # TODO: Replace with actual Modoboa integration when external server is available
-        logger.info(f"Mock sending email: {email_data}")
-
-        # Simulate successful email sending
-        import time
-        import uuid
-        time.sleep(0.5)  # Simulate network delay
-
-        return Response({
-            'sent': True,
-            'message': 'Email sent successfully (mock)',
-            'message_id': str(uuid.uuid4())
-        })
+        # Call Modoboa API
+        result = call_modoboa_api('/email/send/', 'POST', email_data, token)
+        return Response(result)
 
     except Exception as e:
         logger.error(f"Error sending email: {e}")
@@ -332,21 +269,12 @@ def send_email(request):
 def perform_email_actions(request):
     """Perform bulk email actions (mark read/unread, delete, move)"""
     try:
-        # Get user's API token
-                # Get Modoboa token from authentication
-        from .auth import get_modoboa_token
+        # Get user's API token from request
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         if not auth_header.startswith('Token '):
             return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        session_token = auth_header[6:]  # Remove 'Token ' prefix
-        token = get_modoboa_token(session_token)
-        if not token:
-            return Response({'error': 'Email authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Get Modoboa token from authentication
-        if not token:
-            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        token = auth_header[6:]  # Remove 'Token ' prefix
 
         action = request.data.get('action')
         message_ids = request.data.get('ids', [])
@@ -355,48 +283,16 @@ def perform_email_actions(request):
         if not action or not message_ids:
             return Response({'error': 'Missing action or message IDs'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Map our folder names to Modoboa folder names
-        folder_mapping = {
-            'INBOX': 'inbox',
-            'Sent': 'sent',
-            'Drafts': 'drafts',
-            'Trash': 'trash',
-            'Spam': 'spam'
+        # Call Modoboa API
+        data = {
+            'action': action,
+            'ids': message_ids
         }
+        if folder_name:
+            data['folder'] = folder_name
 
-        successful_actions = 0
-
-        for message_id in message_ids:
-            try:
-                if action == 'mark_read':
-                    # Mark as read
-                    call_modoboa_api(f'/messages/{message_id}/read/', 'PATCH', {}, token)
-                elif action == 'mark_unread':
-                    # Mark as unread
-                    call_modoboa_api(f'/messages/{message_id}/unread/', 'PATCH', {}, token)
-                elif action == 'delete':
-                    # Delete message
-                    call_modoboa_api(f'/messages/{message_id}/', 'DELETE', None, token)
-                elif action == 'move':
-                    if not folder_name:
-                        continue
-                    modoboa_folder = folder_mapping.get(folder_name, folder_name.lower())
-                    data = {'folder': modoboa_folder}
-                    call_modoboa_api(f'/messages/{message_id}/move/', 'PATCH', data, token)
-                else:
-                    continue
-
-                successful_actions += 1
-
-            except Exception as e:
-                logger.error(f"Failed to perform {action} on message {message_id}: {e}")
-                continue
-
-        return Response({
-            'detail': f'Action "{action}" performed on {successful_actions} out of {len(message_ids)} messages',
-            'successful': successful_actions,
-            'total': len(message_ids)
-        })
+        result = call_modoboa_api('/email/actions/', 'POST', data, token)
+        return Response(result)
 
     except Exception as e:
         logger.error(f"Error performing email actions: {e}")
@@ -407,58 +303,89 @@ def perform_email_actions(request):
 def search_messages(request):
     """Advanced email search"""
     try:
-        email_account = get_object_or_404(EmailAccount, user=request.user)
+        # Get user's API token from request
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        token = auth_header[6:]  # Remove 'Token ' prefix
 
         query = request.GET.get('query', '').strip()
         folder_name = request.GET.get('folder')
 
-        # Base queryset
-        messages = EmailMessage.objects.filter(account=email_account)
-
-        # Filter by folder if specified
+        # Call Modoboa API
+        params = f'?query={query}'
         if folder_name:
-            folder = get_object_or_404(EmailFolder, account=email_account, name=folder_name)
-            messages = messages.filter(folder=folder)
+            params += f'&folder={folder_name}'
 
-        # Apply search query
-        if query:
-            search_filter = (
-                Q(subject__icontains=query) |
-                Q(sender__icontains=query) |
-                Q(sender_name__icontains=query) |
-                Q(body_text__icontains=query) |
-                Q(body_html__icontains=query)
-            )
-            messages = messages.filter(search_filter)
-
-        # Apply additional filters from query parameters
-        if request.GET.get('is_read') == 'false':
-            messages = messages.filter(is_read=False)
-        if request.GET.get('has_attachments') == 'true':
-            messages = messages.filter(attachments__isnull=False).distinct()
-
-        # Order and limit results
-        messages = messages.order_by('-date_received')[:100]
-
-        # Convert to response format
-        results = []
-        for message in messages:
-            results.append({
-                'id': message.message_id,
-                'subject': message.subject,
-                'from': message.sender_name or message.sender,
-                'date': message.date_received.isoformat(),
-                'is_read': message.is_read,
-                'has_attachments': message.has_attachments,
-                'snippet': message.snippet or message.subject[:100],
-                'folder': message.folder.name,
-            })
-
-        return Response({'results': results})
+        result = call_modoboa_api(f'/email/search/{params}', 'GET', None, token)
+        return Response(result)
 
     except Exception as e:
         logger.error(f"Error searching messages: {e}")
         return Response({'error': 'Failed to search messages'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_attachment(request):
+    """Upload attachment for temporary storage before email sending"""
+    try:
+        if 'file' not in request.FILES:
+            return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        uploaded_file = request.FILES['file']
+
+        # Create attachment record
+        attachment = EmailAttachment.objects.create(
+            filename=uploaded_file.name,
+            content_type=uploaded_file.content_type,
+            size_bytes=uploaded_file.size,
+            attachment_file=uploaded_file,
+            is_temporary=True,
+            uploaded_by=request.user,
+            message=None  # Not attached to email yet
+        )
+
+        return Response({
+            'uploaded': True,
+            'filename': attachment.filename,
+            'attachment_id': attachment.id
+        })
+
+    except Exception as e:
+        logger.error(f"Error uploading attachment: {e}")
+        return Response({'error': 'Failed to upload attachment'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def download_attachment(request):
+    """Download attachment by ID"""
+    try:
+        attachment_id = request.GET.get('id')
+        if not attachment_id:
+            return Response({'error': 'Attachment ID required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Find attachment (temporary or attached to message)
+        attachment = get_object_or_404(
+            EmailAttachment,
+            id=attachment_id,
+            uploaded_by=request.user  # Only allow downloading own attachments
+        )
+
+        # Serve the file
+        from django.http import FileResponse
+        response = FileResponse(
+            attachment.attachment_file,
+            content_type=attachment.content_type
+        )
+        response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
+        return response
+
+    except EmailAttachment.DoesNotExist:
+        return Response({'error': 'Attachment not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error downloading attachment: {e}")
+        return Response({'error': 'Failed to download attachment'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

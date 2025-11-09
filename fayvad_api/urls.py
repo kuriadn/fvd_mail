@@ -1,8 +1,9 @@
 from django.urls import path
 from .views.auth import api_login, api_logout, api_me, api_update_me, api_refresh_token
 from .views.email import (
-    get_folders, get_messages, get_message_detail, send_email,
-    perform_email_actions, search_messages, get_drafts, save_draft, delete_draft
+    email_auth, get_folders, get_messages, get_message_detail, send_email,
+    perform_email_actions, search_messages, upload_attachment, download_attachment,
+    get_drafts, save_draft, delete_draft
 )
 from .views.admin import (
     get_organizations, create_organization, get_organization_detail,
@@ -27,12 +28,17 @@ urlpatterns = [
     path('auth/refresh/', api_refresh_token, name='api_refresh_token'),
 
     # Email operations
+    path('email/auth/', email_auth, name='email_auth'),
     path('email/folders/', get_folders, name='get_folders'),
     path('email/messages/', get_messages, name='get_messages'),
     path('email/messages/<str:message_id>/', get_message_detail, name='get_message_detail'),
     path('email/send/', send_email, name='send_email'),
     path('email/actions/', perform_email_actions, name='perform_email_actions'),
     path('email/search/', search_messages, name='search_messages'),
+
+    # Attachment operations
+    path('email/attachments/upload/', upload_attachment, name='upload_attachment'),
+    path('email/attachments/download/', download_attachment, name='download_attachment'),
 
     # Draft management
     path('email/drafts/', get_drafts, name='get_drafts'),

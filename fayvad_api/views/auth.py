@@ -53,7 +53,7 @@ def api_login(request):
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
         # Now try to authenticate with Modoboa for email access
-        modoboa_url = os.getenv('MODOBOA_API_URL', 'https://mail.fayvad.com/fayvad_api')
+        modoboa_url = os.getenv('MODOBOA_API_URL', 'http://localhost:8000/fayvad_api')
         modoboa_auth_url = f"{modoboa_url}/auth/login/"
 
         modoboa_token = None

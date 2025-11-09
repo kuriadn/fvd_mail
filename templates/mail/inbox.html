@@ -178,42 +178,149 @@
 
 {% block extra_js %}
 <script>
-// Real-time functionality
-let updateInterval;
-let isOnline = true;
+// API Configuration
+const API_BASE = '/fayvad_api';
+let authToken = null;
 
-function checkConnectionStatus() {
-    // Simple connection check - in real implementation, this would ping the server
-    const statusElement = document.getElementById('connection-status');
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Get auth token from meta tag or session
+    const tokenMeta = document.querySelector('meta[name="api-token"]');
+    if (tokenMeta) {
+        authToken = tokenMeta.getAttribute('content');
+    }
 
-    if (navigator.onLine) {
-        if (!isOnline) {
-            isOnline = true;
-            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>Online';
-            statusElement.className = 'text-sm text-green-600';
-            showNotification('Connection restored');
-            checkForUpdates(); // Check for missed updates
+    // Initialize email client
+    initializeEmailClient();
+});
+
+// Email API Client
+class EmailAPIClient {
+    constructor() {
+        this.baseURL = API_BASE;
+        this.headers = {
+            'Content-Type': 'application/json'
+        };
+        if (authToken) {
+            this.headers['Authorization'] = `Token ${authToken}`;
         }
-    } else {
-        if (isOnline) {
-            isOnline = false;
-            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-red-600 rounded-full mr-2"></span>Offline';
-            statusElement.className = 'text-sm text-red-600';
-            showNotification('Connection lost');
+    }
+
+    async apiRequest(endpoint, options = {}) {
+        const url = `${this.baseURL}${endpoint}`;
+        const config = {
+            headers: this.headers,
+            ...options
+        };
+
+        try {
+            const response = await fetch(url, config);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`API Error (${endpoint}):`, error);
+            throw error;
         }
+    }
+
+    async authenticateEmail(email, password) {
+        return this.apiRequest('/email/auth/', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+    }
+
+    async getFolders() {
+        return this.apiRequest('/email/folders/');
+    }
+
+    async getMessages(folder = 'INBOX', limit = 50, page = 1) {
+        const params = new URLSearchParams({ folder, limit, page });
+        return this.apiRequest(`/email/messages/?${params}`);
+    }
+
+    async sendEmail(emailData) {
+        return this.apiRequest('/email/send/', {
+            method: 'POST',
+            body: JSON.stringify(emailData)
+        });
+    }
+
+    async performEmailAction(action, messageIds, folder = null) {
+        const data = { action, ids: messageIds };
+        if (folder) data.folder = folder;
+        return this.apiRequest('/email/actions/', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async searchMessages(query, folder = 'INBOX') {
+        const params = new URLSearchParams({ query, folder });
+        return this.apiRequest(`/email/search/?${params}`);
+    }
+
+    async uploadAttachment(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const url = `${this.baseURL}/email/attachments/upload/`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': this.headers['Authorization']
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Upload failed: ${response.status}`);
+        }
+
+        return await response.json();
     }
 }
 
-function checkForUpdates() {
-    if (!isOnline) return;
+// Global email client
+let emailClient;
+let currentFolder = 'INBOX';
+let currentPage = 1;
+let isOnline = true;
 
-    // In a real implementation, this would fetch new emails from the server
-    console.log('Checking for email updates...');
+// Real-time functionality
+let updateInterval;
 
-    // Simulate occasional new emails (5% chance)
-    if (Math.random() < 0.05) {
-        showNotification('You have new emails!');
-        // In real implementation, would refresh the email list
+function checkConnectionStatus() {
+    // Ping the API to check connection
+    fetch(`${API_BASE}/auth/me/`, {
+        headers: { 'Authorization': `Token ${authToken}` }
+    })
+    .then(response => {
+        const newStatus = response.ok;
+        updateConnectionStatus(newStatus);
+    })
+    .catch(() => {
+        updateConnectionStatus(false);
+    });
+}
+
+function updateConnectionStatus(online) {
+    const statusElement = document.getElementById('connection-status');
+
+    if (online !== isOnline) {
+        isOnline = online;
+        if (online) {
+            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>Online';
+            statusElement.className = 'text-sm text-green-600';
+            showNotification('Connection restored');
+            loadEmails(); // Refresh emails when connection restored
+        } else {
+            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-red-600 rounded-full mr-2"></span>Offline';
+            statusElement.className = 'text-sm text-red-600';
+            showNotification('Connection lost', 'error');
+        }
     }
 }
 
@@ -282,6 +389,228 @@ function updateBulkActions() {
     selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
 }
 
+// Initialize email client and load data
+async function initializeEmailClient() {
+    try {
+        emailClient = new EmailAPIClient();
+
+        // Load folders
+        await loadFolders();
+
+        // Load initial emails
+        await loadEmails();
+
+        // Start real-time updates
+        startRealTimeUpdates();
+        checkConnectionStatus();
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopRealTimeUpdates();
+            } else {
+                startRealTimeUpdates();
+                checkForUpdates();
+            }
+        });
+
+        // Setup event listeners
+        setupEventListeners();
+
+    } catch (error) {
+        console.error('Failed to initialize email client:', error);
+        showNotification('Failed to load emails. Please refresh the page.', 'error');
+    }
+}
+
+async function loadFolders() {
+    try {
+        const response = await emailClient.getFolders();
+        const folders = response.folders || [];
+
+        // Update folder navigation - this would need to be updated to use the API data
+        console.log('Loaded folders:', folders);
+    } catch (error) {
+        console.error('Failed to load folders:', error);
+    }
+}
+
+async function loadEmails() {
+    try {
+        const response = await emailClient.getMessages(currentFolder, 50, currentPage);
+        const messages = response.messages || [];
+        const total = response.total || 0;
+
+        // Update email list
+        const emailList = document.querySelector('.divide-y.divide-gray-200');
+        if (emailList) {
+            emailList.innerHTML = '';
+
+            if (messages.length === 0) {
+                emailList.innerHTML = `
+                    <div class="flex items-center justify-center h-full py-12">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No emails</h3>
+                            <p class="mt-1 text-sm text-gray-500">No emails found in this folder.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messages.forEach(message => {
+                    const emailRow = document.createElement('div');
+                    emailRow.className = `email-row bg-white hover:bg-gray-50 px-6 py-4 cursor-pointer ${!message.is_read ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`;
+                    emailRow.setAttribute('data-message-id', message.id || message.message_id);
+                    emailRow.onclick = () => openEmail(message.id || message.message_id);
+
+                    emailRow.innerHTML = `
+                        <div class="flex items-center">
+                            <input type="checkbox" class="email-checkbox mr-4" onchange="updateBulkActions()">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center">
+                                    <p class="text-sm font-medium ${message.is_read ? 'text-gray-900' : 'text-gray-900 font-semibold'} truncate">
+                                        ${message.from_display || message.sender}
+                                    </p>
+                                    ${message.has_attachments ? `
+                                        <svg class="ml-2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        </svg>
+                                    ` : ''}
+                                    <p class="ml-auto text-sm text-gray-500">
+                                        ${new Date(message.date_received).toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <div class="flex items-center">
+                                    <p class="text-sm ${message.is_read ? 'text-gray-900' : 'text-gray-900 font-semibold'} truncate">
+                                        ${message.subject || 'No Subject'}
+                                    </p>
+                                    <p class="ml-2 text-sm text-gray-500 truncate flex-1">
+                                        ${message.snippet || message.body_text?.substring(0, 100) || ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    emailList.appendChild(emailRow);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load emails:', error);
+        showNotification('Failed to load emails. Please try again.', 'error');
+    }
+}
+
+function setupEventListeners() {
+    // Bulk operations
+    document.getElementById('bulk-mark-read')?.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+        }
+
+        const messageIds = Array.from(selectedCheckboxes).map(cb => {
+            return cb.closest('.email-row').getAttribute('data-message-id');
+        });
+
+        try {
+            await emailClient.performEmailAction('mark_read', messageIds);
+            showNotification(`${selectedCheckboxes.length} emails marked as read!`, 'success');
+
+            // Update UI
+            selectedCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const row = checkbox.closest('.email-row');
+                row.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500');
+                row.querySelectorAll('p').forEach(p => {
+                    p.classList.remove('font-semibold');
+                });
+            });
+            updateBulkActions();
+        } catch (error) {
+            showNotification('Failed to mark emails as read.', 'error');
+        }
+    });
+
+    document.getElementById('bulk-mark-unread')?.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+        }
+
+        const messageIds = Array.from(selectedCheckboxes).map(cb => {
+            return cb.closest('.email-row').getAttribute('data-message-id');
+        });
+
+        try {
+            await emailClient.performEmailAction('mark_unread', messageIds);
+            showNotification(`${selectedCheckboxes.length} emails marked as unread!`, 'success');
+
+            // Update UI
+            selectedCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const row = checkbox.closest('.email-row');
+                row.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500');
+                row.querySelectorAll('p').forEach(p => {
+                    p.classList.add('font-semibold');
+                });
+            });
+            updateBulkActions();
+        } catch (error) {
+            showNotification('Failed to mark emails as unread.', 'error');
+        }
+    });
+
+    document.getElementById('bulk-delete')?.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+        }
+
+        if (!confirm(`Delete ${selectedCheckboxes.length} selected email(s)? This action cannot be undone.`)) {
+            return;
+        }
+
+        const messageIds = Array.from(selectedCheckboxes).map(cb => {
+            return cb.closest('.email-row').getAttribute('data-message-id');
+        });
+
+        try {
+            await emailClient.performEmailAction('delete', messageIds);
+            showNotification(`${selectedCheckboxes.length} emails deleted successfully!`, 'success');
+
+            // Remove from UI
+            selectedCheckboxes.forEach(checkbox => {
+                checkbox.closest('.email-row').remove();
+            });
+            updateBulkActions();
+        } catch (error) {
+            showNotification('Failed to delete emails.', 'error');
+        }
+    });
+
+    // Select all functionality
+    document.getElementById('select-all')?.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.email-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+
+    // Refresh button
+    document.getElementById('refresh-btn')?.addEventListener('click', function() {
+        loadEmails();
+        showNotification('Emails refreshed!', 'info');
+    });
+}
+
 // Email interaction functions
 function openEmail(messageId) {
     // Don't open if user is selecting checkboxes
@@ -291,92 +620,14 @@ function openEmail(messageId) {
     window.location.href = "{% url 'mail:email_detail' 'MESSAGE_ID' %}".replace('MESSAGE_ID', messageId);
 }
 
-// Event listeners
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Start real-time updates
-    startRealTimeUpdates();
-    checkConnectionStatus();
+    // Get auth token from Django context
+    authToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+                document.querySelector('[name="csrfmiddlewaretoken"]')?.value;
 
-    // Handle page visibility changes
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            stopRealTimeUpdates();
-        } else {
-            startRealTimeUpdates();
-            checkForUpdates();
-        }
-    });
-
-    // Bulk operations
-    document.getElementById('bulk-mark-read').addEventListener('click', function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        // In a real implementation, this would send API requests
-        showNotification(`${selectedCheckboxes.length} emails marked as read!`, 'success');
-        selectedCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-            const row = checkbox.closest('.email-row');
-            row.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500');
-            row.querySelectorAll('p').forEach(p => {
-                p.classList.remove('font-semibold');
-            });
-        });
-        updateBulkActions();
-    });
-
-    document.getElementById('bulk-mark-unread').addEventListener('click', function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        showNotification(`${selectedCheckboxes.length} emails marked as unread!`, 'success');
-        selectedCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-            const row = checkbox.closest('.email-row');
-            row.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500');
-            row.querySelectorAll('p').forEach(p => {
-                p.classList.add('font-semibold');
-            });
-        });
-        updateBulkActions();
-    });
-
-    document.getElementById('bulk-delete').addEventListener('click', function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        if (confirm(`Delete ${selectedCheckboxes.length} selected email(s)? This action cannot be undone.`)) {
-            // In a real implementation, this would send delete requests
-            showNotification(`${selectedCheckboxes.length} emails deleted successfully!`, 'success');
-            selectedCheckboxes.forEach(checkbox => {
-                checkbox.closest('.email-row').remove();
-            });
-            updateBulkActions();
-        }
-    });
-
-    // Select all functionality
-    document.getElementById('select-all').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.email-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-        updateBulkActions();
-    });
-
-    // Refresh button
-    document.getElementById('refresh-btn').addEventListener('click', function() {
-        location.reload();
-    });
+    // Initialize email client
+    initializeEmailClient();
 });
 
 // Clean up on page unload

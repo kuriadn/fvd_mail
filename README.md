@@ -43,15 +43,23 @@ A modern email platform built with pure Django, vanilla JavaScript, and Tailwind
 ## Project Structure
 
 ```
-fayvad_mail/
-├── accounts/           # User authentication
-├── organizations/      # Organization management
-├── mail/              # Email functionality
-├── admin_portal/      # Admin interface
-├── templates/         # Django templates
-├── static/           # Static assets
-├── theme/            # TailwindCSS theme
-└── fayvad_mail_project/ # Django settings
+fayvad_mail/                    # Django Web App (port 8005 external, 8000 internal)
+├── accounts/                   # User authentication
+├── organizations/              # Organization management
+├── mail/                      # Email functionality & models
+├── business/                  # CRM, tasks, projects
+├── admin_portal/              # Admin interface & analytics
+├── fayvad_api/                # REST API endpoints
+├── templates/                 # Django templates
+├── static/                   # Static assets
+├── theme/                    # TailwindCSS theme
+├── modoboa_integration/      # Internal Modoboa client
+└── fayvad_mail_project/      # Django settings
+
+modoboa/                       # Email Server (port 8000)
+├── API endpoints at /api/v1/
+├── IMAP/SMTP services
+└── Email storage & delivery
 ```
 
 ## Installation
@@ -141,17 +149,31 @@ docker build -t fayvad-mail:latest .
 # Run with production settings
 docker run -d \\
   --name fayvad-mail \\
-  -p 8000:8000 \\
+  -p 8005:8000 \\
   -e DEBUG=0 \\
   -e SECRET_KEY=your-production-secret-key \\
+  -e MODOBOA_API_URL=http://localhost:8000/api/v1 \\
   -e USE_MODOBOA_DB=true \\
   -e MODOBOA_DB_NAME=modoboa_db \\
   -e MODOBOA_DB_USER=modoboa_user \\
   -e MODOBOA_DB_PASSWORD=your_password \\
-  -e MODOBOA_API_BASE=https://mail.fayvad.com/fayvad_api \\
   fayvad-mail:latest \\
   gunicorn fayvad_mail_project.wsgi:application --bind 0.0.0.0:8000
 ```
+
+### Server Architecture
+
+```
+Internet → Nginx (mail.fayvad.com:443) → Django App (localhost:8005)
+                                              ↓ (internal)
+                                     Modoboa Server (localhost:8000)
+```
+
+### Port Configuration
+
+- **mail.fayvad.com** → Nginx → **Django App** (port 8005)
+- **Django App** (internal port 8000) → **Modoboa API** (localhost:8000)
+- **Modoboa Server** → IMAP/SMTP services (standard ports)
 
 ## Usage
 
@@ -211,33 +233,31 @@ This Django implementation replaces a previous React/Next.js + FBS API system:
 
 ## Modoboa Integration
 
-This Django application integrates with an existing Modoboa email server:
+This Django application integrates with Modoboa email server running on the same machine:
 
 ### Architecture
-- **Modoboa**: Runs as separate Django app under `modoboa` user
-- **fayvad_api**: REST API extension for business logic
-- **Shared Database**: Optional PostgreSQL integration
-- **API Integration**: HTTP calls to Modoboa fayvad_api endpoints
+- **Modoboa**: Runs on localhost:8080 as separate service
+- **Fayvad Mail**: Runs on localhost:8000, exposed at mail.fayvad.com
+- **Internal Communication**: HTTP calls between services on same server
+- **Database**: Optional shared PostgreSQL database
 
 ### Integration Modes
 
-1. **API-Only Mode** (Default): HTTP calls to fayvad_api
-2. **Hybrid Mode**: Shared database + API for email operations
-3. **Full Database Mode**: Direct database integration
+1. **Internal API Mode** (Recommended): HTTP calls to localhost Modoboa API
+2. **Database Integration Mode**: Direct database access to Modoboa
+3. **Hybrid Mode**: Combined API + database access
 
 ### Environment Configuration
 
 ```bash
-# Enable database integration (optional)
-export USE_MODOBOA_DB=False
+# Modoboa API (internal communication)
+export MODOBOA_API_URL=http://localhost:8000/api/v1
 
-# Database settings (if using direct DB integration)
+# Optional: Database integration
+export USE_MODOBOA_DB=False
 export MODOBOA_DB_NAME=modoboa_db
 export MODOBOA_DB_USER=modoboa_user
 export MODOBOA_DB_PASSWORD=your_password
-
-# API settings (always required)
-export MODOBOA_API_BASE=https://mail.fayvad.com/fayvad_api
 ```
 
 ## Success Story

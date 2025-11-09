@@ -17,8 +17,9 @@ class ModoboaAPIClient:
     """Client for interacting with Modoboa fayvad_api endpoints"""
 
     def __init__(self):
-        # Use local fayvad_api instead of external Modoboa
-        self.base_url = 'http://localhost:8000/fayvad_api'
+        # Use Modoboa API URL from environment or default to localhost
+        import os
+        self.base_url = os.getenv('MODOBOA_API_URL', 'http://localhost:8000/fayvad_api')
         self.session = requests.Session()
         # Set default headers
         self.session.headers.update({
