@@ -119,14 +119,6 @@
                         </label>
                     </div>
 
-                    <div class="flex items-center">
-                        <input type="checkbox" name="{{ form.dkim_enabled.html_name }}" id="{{ form.dkim_enabled.id_for_label }}"
-                               {% if form.dkim_enabled.value %}checked{% endif %}
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="{{ form.dkim_enabled.id_for_label }}" class="ml-2 block text-sm text-gray-900">
-                            Enable DKIM Signing
-                        </label>
-                    </div>
                 </div>
             </div>
 

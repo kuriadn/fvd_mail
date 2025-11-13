@@ -3,7 +3,7 @@ from .views.auth import api_login, api_logout, api_me, api_update_me, api_refres
 from .views.email import (
     email_auth, get_folders, get_messages, get_message_detail, send_email,
     perform_email_actions, search_messages, upload_attachment, download_attachment,
-    get_drafts, save_draft, delete_draft
+    get_drafts, save_draft, delete_draft, check_new_emails
 )
 from .views.admin import (
     get_organizations, create_organization, get_organization_detail,
@@ -35,6 +35,7 @@ urlpatterns = [
     path('email/send/', send_email, name='send_email'),
     path('email/actions/', perform_email_actions, name='perform_email_actions'),
     path('email/search/', search_messages, name='search_messages'),
+    path('email/check-new/', check_new_emails, name='check_new_emails'),
 
     # Attachment operations
     path('email/attachments/upload/', upload_attachment, name='upload_attachment'),

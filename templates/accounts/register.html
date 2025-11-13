@@ -1,0 +1,264 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Register - Fayvad Mail{% endblock %}
+
+{% block navigation %}
+<!-- Marketing Navigation -->
+<nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <img class="h-8 w-auto" src="{% static 'logo.png' %}" alt="Fayvad Mail">
+                <span class="ml-3 text-xl font-bold text-gray-900">Fayvad Mail</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{% url 'features' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
+                <a href="{% url 'pricing' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
+                <a href="{% url 'support' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Support</a>
+                <a href="{% url 'accounts:login' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Sign In</a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div class="flex min-h-screen">
+        <!-- Left Side - Marketing Content -->
+        <div class="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8 lg:py-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700">
+            <div class="mx-auto w-full max-w-md">
+                <!-- Hero Content -->
+                <div class="text-center text-white mb-12">
+                    <h1 class="text-4xl font-bold mb-4">
+                        Join Fayvad Mail<br>
+                        <span class="text-blue-200">Today</span>
+                    </h1>
+                    <p class="text-xl text-blue-100 mb-8">
+                        Start your free trial and experience professional email hosting
+                    </p>
+                </div>
+
+                <!-- Key Benefits -->
+                <div class="space-y-6 mb-12">
+                    <div class="flex items-center text-white">
+                        <div class="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold">Free Trial</h3>
+                            <p class="text-blue-100">Start with up to 5 email accounts free</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-white">
+                        <div class="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold">Quick Setup</h3>
+                            <p class="text-blue-100">Get your email running in minutes</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-white">
+                        <div class="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold">Secure & Reliable</h3>
+                            <p class="text-blue-100">Enterprise-grade security and 99.9% uptime</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial -->
+                <div class="bg-white bg-opacity-10 rounded-lg p-6 text-white">
+                    <blockquote class="text-center">
+                        <p class="text-lg italic mb-4">"Fayvad Mail transformed our business communication. Professional, reliable, and affordable."</p>
+                        <cite class="text-blue-100">- Sarah Wanjiku, CEO, TechStart Kenya</cite>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Registration Form -->
+        <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-12">
+            <div class="mx-auto w-full max-w-md">
+                <!-- Mobile Hero (shown on mobile, hidden on desktop) -->
+                <div class="lg:hidden text-center mb-8">
+                    <div class="flex justify-center mb-4">
+                        <img class="h-12 w-auto" src="{% static 'logo.png' %}" alt="Fayvad Mail">
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Fayvad Mail</h1>
+                    <p class="text-gray-600">Professional email for your business</p>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="bg-white shadow-xl rounded-lg border border-gray-200">
+                    <div class="px-8 py-8">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
+                            <p class="text-gray-600">Start your free trial today</p>
+                        </div>
+
+                        <form class="space-y-6" action="{% url 'accounts:register' %}" method="post">
+                            {% csrf_token %}
+
+                            <!-- Username -->
+                            <div>
+                                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Username
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <input id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}" type="text" autocomplete="username" required
+                                           class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                           placeholder="Choose a username">
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <input id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" type="email" autocomplete="email" required
+                                           class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                           placeholder="your.email@company.com">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Password
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                    </div>
+                                    <input id="{{ form.password1.id_for_label }}" name="{{ form.password1.html_name }}" type="password" autocomplete="new-password" required
+                                           class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                           placeholder="Create a strong password">
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirm Password
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                    </div>
+                                    <input id="{{ form.password2.id_for_label }}" name="{{ form.password2.html_name }}" type="password" autocomplete="new-password" required
+                                           class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                           placeholder="Confirm your password">
+                                </div>
+                            </div>
+
+                            <!-- Terms and Privacy -->
+                            <div class="flex items-center">
+                                <input id="terms" name="terms" type="checkbox" required
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="terms" class="ml-2 block text-sm text-gray-700">
+                                    I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> and <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                                </label>
+                            </div>
+
+                            {% if form.errors %}
+                                <div class="rounded-lg bg-red-50 p-4 border border-red-200">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm text-red-700">
+                                                {% for field, errors in form.errors.items %}
+                                                    {% for error in errors %}
+                                                        <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                {% if form.non_field_errors %}
+                                                    {% for error in form.non_field_errors %}
+                                                        <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div>
+                                <button type="submit"
+                                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
+                                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                        <svg class="h-5 w-5 text-indigo-300 group-hover:text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                        </svg>
+                                    </span>
+                                    Create your account
+                                </button>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">
+                                    Already have an account?
+                                    <a href="{% url 'accounts:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                                        Sign in here
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-500 mb-4">Your data is secure and encrypted</p>
+                    <div class="flex justify-center space-x-6">
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-2 text-sm text-gray-600">Free SSL Certificate</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-2 text-sm text-gray-600">GDPR Compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

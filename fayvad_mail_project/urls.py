@@ -18,8 +18,25 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from accounts import views
+
+# Public views
+def landing_page(request):
+    """Public landing page"""
+    return render(request, 'public/landing.html')
+
+def features_page(request):
+    """Features page"""
+    return render(request, 'public/features.html')
+
+def pricing_page(request):
+    """Pricing page"""
+    return render(request, 'public/pricing.html')
+
+def support_page(request):
+    """Support page"""
+    return render(request, 'public/support.html')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,11 +50,14 @@ urlpatterns = [
     # Fayvad API endpoints
     path('fayvad_api/', include('fayvad_api.urls')),
 
-    # Root redirect
-    path('', lambda request: redirect('mail:inbox') if request.user.is_authenticated else redirect('accounts:login')),
+    # Public pages
+    path('', landing_page, name='landing'),
+    path('features/', features_page, name='features'),
+    path('pricing/', pricing_page, name='pricing'),
+    path('support/', support_page, name='support'),
 ]
 
-# Serve static files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0] if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS else None)
+# Serve static files in development and production (temporary)
+if settings.DEBUG or getattr(settings, 'SERVE_STATIC_FILES', False):
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

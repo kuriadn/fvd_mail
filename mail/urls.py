@@ -18,8 +18,10 @@ urlpatterns = [
     # Draft management
     path('save-draft/', views.save_draft, name='save_draft'),
     path('get-drafts/', views.get_drafts, name='get_drafts'),
+    path('store-reply-data/', views.store_reply_data, name='store_reply_data'),
 
     # API endpoints for AJAX interactions
+    path('api/drafts/', views.get_drafts, name='api_drafts'),
     path('api/mark-read/<str:message_id>/', views.mark_as_read, name='mark_read'),
     path('api/mark-unread/<str:message_id>/', views.mark_as_unread, name='mark_unread'),
     path('api/delete/<str:message_id>/', views.delete_message, name='delete_message'),

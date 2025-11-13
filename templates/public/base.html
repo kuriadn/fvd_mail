@@ -1,0 +1,40 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block navigation %}
+<!-- Public Navigation -->
+<nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <img class="h-8 w-auto" src="{% static 'logo.png' %}" alt="Fayvad Mail">
+                    <h1 class="ml-2 text-xl font-bold text-gray-900">Fayvad Mail</h1>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="{% url 'landing' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.resolver_match.url_name == 'landing' %}border-blue-500 text-gray-900{% endif %}">
+                        Home
+                    </a>
+                    <a href="{% url 'features' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.resolver_match.url_name == 'features' %}border-blue-500 text-gray-900{% endif %}">
+                        Features
+                    </a>
+                    <a href="{% url 'pricing' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.resolver_match.url_name == 'pricing' %}border-blue-500 text-gray-900{% endif %}">
+                        Pricing
+                    </a>
+                    <a href="{% url 'support' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.resolver_match.url_name == 'support' %}border-blue-500 text-gray-900{% endif %}">
+                        Support
+                    </a>
+                </div>
+            </div>
+            <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+                <a href="{% url 'accounts:login' %}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                    Sign In
+                </a>
+                <a href="{% url 'accounts:register' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock %}

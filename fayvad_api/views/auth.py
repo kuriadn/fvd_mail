@@ -29,19 +29,11 @@ def authenticate_token(token):
                 return None
     return None
 
-def get_modoboa_token(token):
-    """Get Modoboa token from our session token"""
-    if not token:
-        return None
-    token_data = cache.get(f'api_token_{token}')
-    if token_data and isinstance(token_data, dict):
-        return token_data.get('modoboa_token')
-    return None
 
 @csrf_exempt
 @require_POST
 def api_login(request):
-    """API login endpoint - authenticates with Django and Modoboa"""
+    """API login endpoint - authenticates with Django"""
     try:
         data = json.loads(request.body)
         username = data.get('username')
@@ -52,42 +44,16 @@ def api_login(request):
         if user is None or not user.is_active:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
-        # Now try to authenticate with Modoboa for email access
-        modoboa_url = os.getenv('MODOBOA_API_URL', 'http://localhost:8000/fayvad_api')
-        modoboa_auth_url = f"{modoboa_url}/auth/login/"
-
-        modoboa_token = None
-        email_authenticated = False
-
-        try:
-            # Attempt Modoboa authentication
-            response = requests.post(modoboa_auth_url, json={
-                'username': username,
-                'password': password
-            }, timeout=10, verify=False)  # verify=False for self-signed certs
-
-            if response.status_code == 200:
-                modoboa_data = response.json()
-                modoboa_token = modoboa_data.get('token')
-                if modoboa_token:
-                    email_authenticated = True
-                    logger.info(f"Modoboa authentication successful for user {username}")
-                else:
-                    logger.warning(f"Modoboa auth succeeded but no token for user {username}")
-            else:
-                logger.warning(f"Modoboa authentication failed for user {username}: {response.status_code}")
-
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"Modoboa server not available: {e}")
-
-        # Generate our session token regardless of Modoboa status
+        # Generate our session token
         token = secrets.token_urlsafe(32)
 
         # Store token data in cache (1 hour expiry)
+        # Email authentication will happen separately when needed
         token_data = {
             'user_id': user.id,
-            'modoboa_token': modoboa_token,
-            'email_authenticated': email_authenticated
+            'username': username,
+            'password': password,  # Store temporarily for email auth
+            'email_authenticated': False
         }
         cache.set(f'api_token_{token}', token_data, timeout=3600)
 
@@ -95,11 +61,8 @@ def api_login(request):
             'token': token,
             'user_id': user.id,
             'username': user.username,
-            'email_authenticated': email_authenticated
+            'email_authenticated': False  # Will be authenticated separately
         }
-
-        if not email_authenticated:
-            response_data['warning'] = 'Email services not available - you can still use other features'
 
         return JsonResponse(response_data)
 

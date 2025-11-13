@@ -53,12 +53,11 @@ fayvad_mail/                    # Django Web App (port 8005 external, 8000 inter
 ├── templates/                 # Django templates
 ├── static/                   # Static assets
 ├── theme/                    # TailwindCSS theme
-├── modoboa_integration/      # Internal Modoboa client
 └── fayvad_mail_project/      # Django settings
 
-modoboa/                       # Email Server (port 8000)
-├── API endpoints at /api/v1/
-├── IMAP/SMTP services
+Email Server (Postfix/Dovecot)
+├── SMTP (port 25/587)
+├── IMAP (port 993)
 └── Email storage & delivery
 ```
 
@@ -152,11 +151,8 @@ docker run -d \\
   -p 8005:8000 \\
   -e DEBUG=0 \\
   -e SECRET_KEY=your-production-secret-key \\
-  -e MODOBOA_API_URL=http://localhost:8000/api/v1 \\
-  -e USE_MODOBOA_DB=true \\
-  -e MODOBOA_DB_NAME=modoboa_db \\
-  -e MODOBOA_DB_USER=modoboa_user \\
-  -e MODOBOA_DB_PASSWORD=your_password \\
+  -e EMAIL_HOST=localhost \\
+  -e EMAIL_PORT=25 \\
   fayvad-mail:latest \\
   gunicorn fayvad_mail_project.wsgi:application --bind 0.0.0.0:8000
 ```
@@ -165,15 +161,15 @@ docker run -d \\
 
 ```
 Internet → Nginx (mail.fayvad.com:443) → Django App (localhost:8005)
-                                              ↓ (internal)
-                                     Modoboa Server (localhost:8000)
+                                              ↓ (direct)
+                                     Postfix/Dovecot (localhost)
 ```
 
 ### Port Configuration
 
 - **mail.fayvad.com** → Nginx → **Django App** (port 8005)
-- **Django App** (internal port 8000) → **Modoboa API** (localhost:8000)
-- **Modoboa Server** → IMAP/SMTP services (standard ports)
+- **Django App** (internal port 8000) → **Postfix/Dovecot** (localhost)
+- **Postfix/Dovecot** → IMAP/SMTP services (standard ports)
 
 ## Usage
 
@@ -231,33 +227,28 @@ This Django implementation replaces a previous React/Next.js + FBS API system:
 
 © 2025 Fayvad Digital. All rights reserved.
 
-## Modoboa Integration
+## Email Server Integration
 
-This Django application integrates with Modoboa email server running on the same machine:
+This Django application integrates directly with Postfix/Dovecot email servers:
 
 ### Architecture
-- **Modoboa**: Runs on localhost:8080 as separate service
+- **Postfix/Dovecot**: Runs on localhost as email services
 - **Fayvad Mail**: Runs on localhost:8000, exposed at mail.fayvad.com
-- **Internal Communication**: HTTP calls between services on same server
-- **Database**: Optional shared PostgreSQL database
+- **Direct Connection**: SMTP/IMAP connections to Postfix/Dovecot
+- **Database**: Django PostgreSQL database for account management
 
-### Integration Modes
+### Integration Mode
 
-1. **Internal API Mode** (Recommended): HTTP calls to localhost Modoboa API
-2. **Database Integration Mode**: Direct database access to Modoboa
-3. **Hybrid Mode**: Combined API + database access
+**Direct SMTP/IMAP Mode**: Direct connection to Postfix/Dovecot for all email operations
 
 ### Environment Configuration
 
 ```bash
-# Modoboa API (internal communication)
-export MODOBOA_API_URL=http://localhost:8000/api/v1
-
-# Optional: Database integration
-export USE_MODOBOA_DB=False
-export MODOBOA_DB_NAME=modoboa_db
-export MODOBOA_DB_USER=modoboa_user
-export MODOBOA_DB_PASSWORD=your_password
+# Email Server Configuration
+export EMAIL_HOST=localhost
+export EMAIL_PORT=25
+export EMAIL_IMAP_HOST=localhost
+export EMAIL_IMAP_PORT=993
 ```
 
 ## Success Story

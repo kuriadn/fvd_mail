@@ -3,19 +3,24 @@
 
 {% block title %}Compose - Fayvad Mail{% endblock %}
 
+{% block extra_head %}
+    <!-- CKEditor for email composition -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto py-6">
     <!-- Compose Toolbar -->
-    <div class="bg-white shadow rounded-lg mb-4">
+    <div class="bg-white shadow-lg rounded-lg mb-6">
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900">Compose Message</h1>
-            <div class="flex items-center space-x-2">
+            <h1 class="text-2xl font-bold text-gray-900">Compose Message</h1>
+            <div class="flex items-center space-x-3">
                 <button type="button" onclick="saveDraft()"
-                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150">
                     Save Draft
                 </button>
                 <a href="{% url 'mail:inbox' %}"
-                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                   class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-150">
                     Cancel
                 </a>
             </div>
@@ -23,39 +28,39 @@
     </div>
 
     <!-- Compose Form -->
-    <div class="bg-white shadow rounded-lg">
+    <div class="bg-white shadow-lg rounded-lg">
         <form method="post" enctype="multipart/form-data" class="divide-y divide-gray-200">
             {% csrf_token %}
 
             <!-- Recipients -->
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-5">
                 <!-- To, CC, BCC Row -->
-                <div class="space-y-2">
-                    <div class="flex items-center space-x-4">
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-4">
                         <div class="flex-1">
-                            <label for="{{ form.to.id_for_label }}" class="block text-sm font-medium text-gray-700">To</label>
+                            <label for="{{ form.to.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">To</label>
                             {{ form.to }}
                             {% if form.to.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.to.errors.0 }}</p>
+                                <p class="mt-1.5 text-sm text-red-600">{{ form.to.errors.0 }}</p>
                             {% endif %}
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-end pb-2">
                             <button type="button" onclick="toggleCCBCC()" id="cc-bcc-toggle"
-                                    class="text-sm text-blue-600 hover:text-blue-800 underline">
+                                    class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors duration-150">
                                 CC/BCC
                             </button>
                         </div>
                     </div>
 
                     <!-- Collapsible CC/BCC Row -->
-                    <div id="cc-bcc-row" class="hidden space-y-2">
+                    <div id="cc-bcc-row" class="hidden space-y-3 animate-fadeIn">
                         <div class="flex space-x-4">
                             <div class="flex-1">
-                                <label for="{{ form.cc.id_for_label }}" class="block text-sm font-medium text-gray-700">CC</label>
+                                <label for="{{ form.cc.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">CC</label>
                                 {{ form.cc }}
                             </div>
                             <div class="flex-1">
-                                <label for="{{ form.bcc.id_for_label }}" class="block text-sm font-medium text-gray-700">BCC</label>
+                                <label for="{{ form.bcc.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">BCC</label>
                                 {{ form.bcc }}
                             </div>
                         </div>
@@ -64,32 +69,32 @@
 
                 <!-- Subject Row -->
                 <div>
-                    <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700">Subject</label>
+                    <label for="{{ form.subject.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">Subject</label>
                     {{ form.subject }}
                     {% if form.subject.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.subject.errors.0 }}</p>
+                        <p class="mt-1.5 text-sm text-red-600">{{ form.subject.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Message Body -->
             <div class="p-6">
-                <label for="{{ form.body.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                <div class="w-full">
+                <label for="{{ form.body.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+                <div class="w-full border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-shadow duration-150">
                     {{ form.body }}
                 </div>
                 {% if form.body.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.body.errors.0 }}</p>
+                    <p class="mt-1.5 text-sm text-red-600">{{ form.body.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <!-- Attachments -->
-            <div class="p-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
+            <div class="p-6 bg-gray-50">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Attachments</label>
                 <div class="space-y-2">
                     <input type="file" name="attachments" id="id_attachments" multiple
-                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <p class="text-xs text-gray-500">You can attach multiple files. Maximum size per file: 10MB</p>
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer transition-colors duration-150">
+                    <p class="text-xs text-gray-500 mt-1">You can attach multiple files. Maximum size per file: 10MB</p>
                 </div>
                 <div id="attachment-preview" class="mt-3 space-y-2"></div>
             </div>
@@ -157,6 +162,59 @@ document.addEventListener('DOMContentLoaded', function() {
         // Wait for script to load
         setTimeout(initializeCKEditor, 1000);
     }
+    
+    // Load draft data if available
+    {% if draft_data %}
+    const draftData = {
+        to: '{{ draft_data.to|escapejs }}',
+        cc: '{{ draft_data.cc|escapejs }}',
+        bcc: '{{ draft_data.bcc|escapejs }}',
+        subject: '{{ draft_data.subject|escapejs }}',
+        body: '{{ draft_data.body|escapejs }}'
+    };
+    
+    if (draftData && (draftData.to || draftData.cc || draftData.bcc || draftData.subject || draftData.body)) {
+        // Pre-populate form fields
+        const toField = document.getElementById('id_to');
+        const ccField = document.getElementById('id_cc');
+        const bccField = document.getElementById('id_bcc');
+        const subjectField = document.getElementById('id_subject');
+        const bodyField = document.getElementById('id_body');
+        
+        if (toField && draftData.to) {
+            toField.value = draftData.to;
+        }
+        if (ccField && draftData.cc) {
+            ccField.value = draftData.cc;
+        }
+        if (bccField && draftData.bcc) {
+            bccField.value = draftData.bcc;
+        }
+        // Show CC/BCC row if CC or BCC has values
+        if ((ccField && ccField.value) || (bccField && bccField.value)) {
+            const ccBccRow = document.getElementById('cc-bcc-row');
+            const toggleButton = document.getElementById('cc-bcc-toggle');
+            if (ccBccRow) {
+                ccBccRow.classList.remove('hidden');
+            }
+            if (toggleButton) {
+                toggleButton.textContent = 'Hide CC/BCC';
+            }
+        }
+        if (subjectField && draftData.subject) {
+            subjectField.value = draftData.subject;
+        }
+        if (bodyField && draftData.body) {
+            bodyField.value = draftData.body;
+            // Set CKEditor content after it's initialized
+            setTimeout(() => {
+                if (window.emailEditor) {
+                    window.emailEditor.setData(draftData.body);
+                }
+            }, 1000);
+        }
+    }
+    {% endif %}
 });
 
 function toggleFormat(format) {

@@ -1,19 +1,7 @@
 from django import forms
 from .models import EmailMessage
 
-class CKEditorWidget(forms.Textarea):
-    """Custom CKEditor widget"""
-    def __init__(self, attrs=None, **kwargs):
-        attrs = attrs or {}
-        attrs.update({
-            'class': 'ckeditor-widget',
-        })
-        super().__init__(attrs)
-
-    class Media:
-        js = (
-            'https://cdn.ckeditor.com/ckeditor5/39.0.0/super-build/ckeditor.js',
-        )
+# Removed CKEditorWidget to prevent duplication - CKEditor is loaded via template
 
 class ComposeEmailForm(forms.Form):
     """Form for composing emails"""
@@ -45,8 +33,9 @@ class ComposeEmailForm(forms.Form):
         })
     )
     body = forms.CharField(
-        widget=CKEditorWidget(attrs={
-            'class': 'form-textarea',
+        widget=forms.Textarea(attrs={
+            'id': 'id_body',  # Important for CKEditor targeting
+            'class': 'form-textarea w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500',
             'rows': 10,
             'placeholder': 'Compose your email...'
         }),

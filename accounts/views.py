@@ -30,7 +30,16 @@ class CustomLoginView(LoginView):
 
         # Now authenticate with the API for email functionality
         user = form.get_user()
-        self._authenticate_with_api(user, form.cleaned_data['password'])
+        password = form.cleaned_data['password']
+        
+        # Store email password in session for SMTP authentication
+        # TODO: In production, this should be encrypted or use a secure password manager
+        # For now, we'll use the Django password as the email password
+        # If email password differs, user should be prompted separately
+        self.request.session['email_password'] = password
+        self.request.session.set_expiry(3600)  # 1 hour
+        
+        self._authenticate_with_api(user, password)
 
         return response
 
@@ -60,7 +69,6 @@ class CustomLoginView(LoginView):
                     # Store the API token data in session
                     token_data = {
                         'user_id': user.id,
-                        'modoboa_token': api_data.get('token'),
                         'email_authenticated': api_data.get('email_authenticated', False)
                     }
                     self.request.session['api_token_data'] = token_data
@@ -71,7 +79,6 @@ class CustomLoginView(LoginView):
                     # Still allow login but mark email as not authenticated
                     token_data = {
                         'user_id': user.id,
-                        'modoboa_token': None,
                         'email_authenticated': False
                     }
                     self.request.session['api_token_data'] = token_data
@@ -80,7 +87,6 @@ class CustomLoginView(LoginView):
                 # Still allow login but mark email as not authenticated
                 token_data = {
                     'user_id': user.id,
-                    'modoboa_token': None,
                     'email_authenticated': False
                 }
                 self.request.session['api_token_data'] = token_data
@@ -90,7 +96,6 @@ class CustomLoginView(LoginView):
             # Still allow login even if API is unavailable
             token_data = {
                 'user_id': user.id,
-                'modoboa_token': None,
                 'email_authenticated': False
             }
             self.request.session['api_token_data'] = token_data

@@ -213,7 +213,7 @@ def get_email_accounts(request):
         return Response({'error': 'System admin access required'}, status=status.HTTP_403_FORBIDDEN)
 
     try:
-        accounts = EmailAccount.objects.select_related('user', 'organization').all()
+        accounts = EmailAccount.objects.select_related('user', 'domain', 'domain__organization').all()
 
         account_data = []
         for account in accounts:
@@ -223,8 +223,8 @@ def get_email_accounts(request):
                 'first_name': account.first_name,
                 'last_name': account.last_name,
                 'user_id': account.user.id,
-                'organization_id': account.organization.id,
-                'organization_name': account.organization.name,
+                'organization_id': account.organization.id if account.organization else None,
+                'organization_name': account.organization.name if account.organization else None,
                 'usage_mb': account.usage_mb,
                 'quota_mb': account.quota_mb,
                 'is_active': account.is_active,

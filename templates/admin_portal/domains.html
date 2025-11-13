@@ -57,7 +57,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        {% if domain.dkim_enabled %}
+                        {% if domain.dkim_config and domain.dkim_config.enabled %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                             DKIM
                         </span>

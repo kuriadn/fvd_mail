@@ -18,10 +18,10 @@ def dashboard(request):
             return redirect('mail:inbox')
 
         # Get user's business data
-        contacts = Contact.objects.filter(organization=organization, user=request.user)[:10]
+        contacts = Contact.objects.filter(user=request.user)[:10]
         projects = Project.objects.filter(organization=organization, created_by=request.user)[:10]
         tasks = Task.objects.filter(organization=organization, created_by=request.user)[:10]
-        documents = Document.objects.filter(organization=organization, uploaded_by=request.user)[:10]
+        documents = Document.objects.filter(uploaded_by=request.user)[:10]
 
         context = {
             'contacts': contacts,
@@ -46,7 +46,7 @@ def contact_list(request):
         messages.error(request, 'You are not associated with any organization.')
         return redirect('business:dashboard')
 
-    contacts = Contact.objects.filter(organization=organization, user=request.user)
+    contacts = Contact.objects.filter(user=request.user)
 
     # Search functionality
     search_query = request.GET.get('search', '')
@@ -99,7 +99,6 @@ def contact_create(request):
     if request.method == 'POST':
         try:
             contact = Contact.objects.create(
-                organization=organization,
                 user=request.user,
                 first_name=request.POST.get('first_name'),
                 last_name=request.POST.get('last_name'),
@@ -233,7 +232,6 @@ def project_create(request):
     if request.method == 'POST':
         try:
             project = Project.objects.create(
-                organization=organization,
                 created_by=request.user,
                 name=request.POST.get('name'),
                 description=request.POST.get('description', ''),
@@ -397,7 +395,6 @@ def task_create(request):
     if request.method == 'POST':
         try:
             task = Task.objects.create(
-                organization=organization,
                 created_by=request.user,
                 assigned_to_id=request.POST.get('assigned_to'),  # Required field
                 project_id=request.POST.get('project') or None,
@@ -509,7 +506,7 @@ def document_list(request):
         messages.error(request, 'You are not associated with any organization.')
         return redirect('business:dashboard')
 
-    documents = Document.objects.filter(organization=organization, uploaded_by=request.user)
+    documents = Document.objects.filter(uploaded_by=request.user)
 
     # Filters
     type_filter = request.GET.get('type', '')
@@ -559,7 +556,6 @@ def document_create(request):
         try:
             uploaded_file = request.FILES.get('file')
             document = Document.objects.create(
-                organization=organization,
                 uploaded_by=request.user,
                 title=request.POST.get('title'),
                 description=request.POST.get('description', ''),
@@ -582,7 +578,7 @@ def document_create(request):
 
     # Get available projects and contacts
     projects = Project.objects.filter(organization=organization, created_by=request.user)
-    contacts = Contact.objects.filter(organization=organization, user=request.user)
+    contacts = Contact.objects.filter(user=request.user)
 
     context = {
         'document_types': Document._meta.get_field('category').choices,

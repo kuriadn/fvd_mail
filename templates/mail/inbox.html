@@ -4,13 +4,13 @@
 {% block title %}Inbox - Fayvad Mail{% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-white">
+<div class="flex h-screen bg-gray-50">
     <!-- Sidebar -->
-    <div class="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
+    <div class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
         <!-- Compose Button -->
-        <div class="p-4">
+        <div class="p-4 border-b border-gray-200">
             <a href="{% url 'mail:compose' %}"
-               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center transition-colors duration-200 shadow-sm hover:shadow">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -19,12 +19,12 @@
         </div>
 
         <!-- Folders -->
-        <div class="flex-1 overflow-y-auto">
-            <nav class="px-2 space-y-1">
+        <div class="flex-1 overflow-y-auto py-2">
+            <nav class="px-2 space-y-0.5">
                 {% for folder in folders %}
                 <a href="?folder={{ folder.name }}"
-                   class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {% if folder.name == current_folder %}bg-gray-200 text-gray-900{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
-                    <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {% if folder.name == current_folder %}bg-blue-50 text-blue-700 border-l-2 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                    <svg class="mr-3 h-5 w-5 flex-shrink-0 {% if folder.name == current_folder %}text-blue-600{% else %}text-gray-500 group-hover:text-gray-700{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         {% if folder.folder_type == 'inbox' %}
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>
                         {% elif folder.folder_type == 'sent' %}
@@ -37,9 +37,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                         {% endif %}
                     </svg>
-                    {{ folder.display_name }}
+                    <span class="flex-1">{{ folder.display_name }}</span>
                     {% if folder.unread_count > 0 %}
-                        <span class="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                        <span class="ml-auto bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[1.5rem] text-center">
                             {{ folder.unread_count }}
                         </span>
                     {% endif %}
@@ -50,19 +50,19 @@
     </div>
 
     <!-- Main content -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col bg-white">
         <!-- Header -->
-        <div class="bg-white border-b border-gray-200 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-semibold text-gray-900">
+        <div class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-900">
                     {% if current_folder == 'INBOX' %}Inbox{% else %}{{ current_folder }}{% endif %}
                 </h1>
-                <div class="flex items-center space-x-4">
-                    <span id="connection-status" class="text-sm text-green-600">
-                        <span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                <div class="flex items-center space-x-3">
+                    <span id="connection-status" class="text-sm text-green-700 flex items-center">
+                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                         Online
                     </span>
-                    <button id="refresh-btn" class="text-gray-400 hover:text-gray-600">
+                    <button id="refresh-btn" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150" title="Refresh">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
@@ -71,20 +71,20 @@
             </div>
 
             <!-- Search Bar -->
-            <div class="mt-4">
+            <div>
                 <form method="GET" class="flex space-x-2">
-                    <div class="flex-1">
+                    <div class="flex-1 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
                         <input type="text" name="q" value="{{ search_query }}"
                                placeholder="Search emails..."
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150">
                     </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </button>
                     {% if search_query %}
-                        <a href="{% url 'mail:inbox' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm">
+                        <a href="{% url 'mail:inbox' %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors duration-150">
                             Clear
                         </a>
                     {% endif %}
@@ -93,84 +93,61 @@
 
             <!-- Bulk Actions Bar -->
             <div id="bulk-actions" class="mt-4 hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <input type="checkbox" id="select-all" class="mr-3">
-                            <span class="text-sm text-blue-800">
-                                <span id="selected-count">0</span> emails selected
+                            <input type="checkbox" id="select-all" class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm font-medium text-blue-900">
+                                <span id="selected-count">0</span> email<span id="selected-plural">s</span> selected
                             </span>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="bulk-mark-read" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            <button id="bulk-mark-read" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150">
                                 Mark as Read
                             </button>
-                            <button id="bulk-mark-unread" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm">
+                            <button id="bulk-mark-unread" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150">
                                 Mark as Unread
                             </button>
-                            <button id="bulk-delete" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                            <button id="bulk-delete" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150">
                                 Delete
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Pagination Controls -->
+            <div id="pagination-controls" class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
+                <div class="flex items-center space-x-4">
+                    <label for="page-size-select" class="text-sm font-medium text-gray-700">Show:</label>
+                    <select id="page-size-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span class="text-sm text-gray-600" id="pagination-info">per page</span>
+                </div>
+                <div class="flex items-center space-x-2" id="pagination-buttons">
+                    <!-- Pagination buttons will be inserted here by JavaScript -->
+                </div>
+            </div>
         </div>
 
         <!-- Email list -->
         <div class="flex-1 overflow-y-auto">
-            {% if messages %}
+            <!-- This container is always present for JavaScript to populate -->
                 <div class="divide-y divide-gray-200">
-                    {% for message in messages %}
-                    <div class="email-row bg-white hover:bg-gray-50 px-6 py-4 cursor-pointer {% if not message.is_read %}bg-blue-50 border-l-4 border-blue-500{% endif %}"
-                         data-message-id="{{ message.message_id }}"
-                         onclick="openEmail('{{ message.message_id }}')">
-                        <div class="flex items-center">
-                            <input type="checkbox" class="email-checkbox mr-4" onchange="updateBulkActions()">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium {% if message.is_read %}text-gray-900{% else %}text-gray-900 font-semibold{% endif %} truncate">
-                                        {{ message.from_display }}
-                                    </p>
-                                    {% if message.has_attachments %}
-                                        <svg class="ml-2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                        </svg>
-                                    {% endif %}
-                                    <p class="ml-auto text-sm text-gray-500">
-                                        {{ message.date_received|date:"M j, H:i" }}
-                                    </p>
-                                </div>
-                                <div class="flex items-center">
-                                    <p class="text-sm {% if message.is_read %}text-gray-900{% else %}text-gray-900 font-semibold{% endif %} truncate">
-                                        {{ message.subject }}
-                                    </p>
-                                    <p class="ml-2 text-sm text-gray-500 truncate flex-1">
-                                        {{ message.snippet }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="flex items-center justify-center h-full">
+                <!-- Emails will be loaded here by JavaScript -->
+                <div class="flex items-center justify-center h-full py-12">
                     <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>
+                        <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No emails</h3>
-                        <p class="mt-1 text-sm text-gray-500">
-                            {% if search_query %}
-                                No emails found matching "{{ search_query }}"
-                            {% else %}
-                                Get started by composing a new message.
-                            {% endif %}
-                        </p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Loading emails...</h3>
+                        <p class="mt-1 text-sm text-gray-500">Please wait while we fetch your messages.</p>
                     </div>
                 </div>
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -180,150 +157,1029 @@
 <script>
 // API Configuration
 const API_BASE = '/fayvad_api';
-let authToken = null;
+let authToken = '{{ api_token|default:"" }}';
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Get auth token from meta tag or session
-    const tokenMeta = document.querySelector('meta[name="api-token"]');
-    if (tokenMeta) {
-        authToken = tokenMeta.getAttribute('content');
+// Email polling and notification system
+let emailPollInterval = null;
+let lastUnreadCount = 0;
+let notificationPermission = null;
+
+// Request notification permission
+async function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+        notificationPermission = await Notification.requestPermission();
+    } else if ('Notification' in window) {
+        notificationPermission = Notification.permission;
     }
+    return notificationPermission === 'granted';
+}
 
-    // Initialize email client
-    initializeEmailClient();
-});
+// Show browser notification for new emails
+function showEmailNotification(count) {
+    if (notificationPermission === 'granted') {
+        new Notification('New Email Received', {
+            body: count === 1 ? 'You have 1 new email' : `You have ${count} new emails`,
+            icon: '/static/logo.png', // Use logo.png as notification icon
+            tag: 'new-email',
+            requireInteraction: false
+        });
+    }
+}
 
-// Email API Client
-class EmailAPIClient {
-    constructor() {
-        this.baseURL = API_BASE;
-        this.headers = {
-            'Content-Type': 'application/json'
-        };
-        if (authToken) {
-            this.headers['Authorization'] = `Token ${authToken}`;
+// Check for new emails (lightweight polling)
+async function checkForNewEmails() {
+    try {
+        const authToken = sessionStorage.getItem('auth_token');
+        if (!authToken) {
+            return;
         }
-    }
 
-    async apiRequest(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        const config = {
-            headers: this.headers,
-            ...options
-        };
-
-        try {
-            const response = await fetch(url, config);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error(`API Error (${endpoint}):`, error);
-            throw error;
-        }
-    }
-
-    async authenticateEmail(email, password) {
-        return this.apiRequest('/email/auth/', {
-            method: 'POST',
-            body: JSON.stringify({ email, password })
-        });
-    }
-
-    async getFolders() {
-        return this.apiRequest('/email/folders/');
-    }
-
-    async getMessages(folder = 'INBOX', limit = 50, page = 1) {
-        const params = new URLSearchParams({ folder, limit, page });
-        return this.apiRequest(`/email/messages/?${params}`);
-    }
-
-    async sendEmail(emailData) {
-        return this.apiRequest('/email/send/', {
-            method: 'POST',
-            body: JSON.stringify(emailData)
-        });
-    }
-
-    async performEmailAction(action, messageIds, folder = null) {
-        const data = { action, ids: messageIds };
-        if (folder) data.folder = folder;
-        return this.apiRequest('/email/actions/', {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
-    }
-
-    async searchMessages(query, folder = 'INBOX') {
-        const params = new URLSearchParams({ query, folder });
-        return this.apiRequest(`/email/search/?${params}`);
-    }
-
-    async uploadAttachment(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const url = `${this.baseURL}/email/attachments/upload/`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': this.headers['Authorization']
-            },
-            body: formData
+        const response = await fetch(`/fayvad_api/email/check-new/?folder=${currentFolder}`, {
+            headers: { 'Authorization': `Token ${authToken}` }
         });
 
         if (!response.ok) {
-            throw new Error(`Upload failed: ${response.status}`);
+            return;
         }
 
-        return await response.json();
+        const data = await response.json();
+        
+        if (data.has_new && data.unread_count > lastUnreadCount) {
+            const newCount = data.unread_count - lastUnreadCount;
+            
+            // Show browser notification
+            if (await requestNotificationPermission()) {
+                showEmailNotification(newCount);
+            }
+            
+            // Show in-app notification
+            showNotification(`You have ${newCount} new email${newCount > 1 ? 's' : ''}`, 'info');
+            
+            // Refresh email list if user is on inbox
+            if (currentFolder === 'INBOX') {
+                loadEmailsForFolder('INBOX');
+            }
+            
+            // Update folder counts
+            updateFolderBadges(data.unread_count);
+        }
+        
+        lastUnreadCount = data.unread_count || 0;
+        
+    } catch (error) {
+        console.error('Error checking for new emails:', error);
     }
 }
 
-// Global email client
-let emailClient;
+// Update folder badges with unread counts
+function updateFolderBadges(inboxUnreadCount) {
+    const inboxLink = document.querySelector('nav a[data-folder="INBOX"]');
+    if (inboxLink) {
+        // Remove existing badge
+        const existingBadge = inboxLink.querySelector('.unread-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Add new badge if there are unread emails
+        if (inboxUnreadCount > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'unread-badge ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full';
+            badge.textContent = inboxUnreadCount;
+            inboxLink.appendChild(badge);
+        }
+    }
+}
+
+// Start email polling
+function startEmailPolling() {
+    // Check every 30 seconds
+    if (emailPollInterval) {
+        clearInterval(emailPollInterval);
+    }
+    
+    emailPollInterval = setInterval(() => {
+        checkForNewEmails();
+    }, 30000); // 30 seconds
+    
+    // Also check immediately
+    checkForNewEmails();
+}
+
+// Stop email polling
+function stopEmailPolling() {
+    if (emailPollInterval) {
+        clearInterval(emailPollInterval);
+        emailPollInterval = null;
+    }
+}
+
+// Folder switching functionality
+// Initialize currentFolder from URL parameter or default to INBOX
 let currentFolder = 'INBOX';
-let currentPage = 1;
-let isOnline = true;
-
-// Real-time functionality
-let updateInterval;
-
-function checkConnectionStatus() {
-    // Ping the API to check connection
-    fetch(`${API_BASE}/auth/me/`, {
-        headers: { 'Authorization': `Token ${authToken}` }
-    })
-    .then(response => {
-        const newStatus = response.ok;
-        updateConnectionStatus(newStatus);
-    })
-    .catch(() => {
-        updateConnectionStatus(false);
-    });
+const urlParams = new URLSearchParams(window.location.search);
+const folderParam = urlParams.get('folder');
+if (folderParam) {
+    currentFolder = folderParam;
 }
 
-function updateConnectionStatus(online) {
-    const statusElement = document.getElementById('connection-status');
+// Pagination state
+let currentPage = 1;
+let pageSize = parseInt(localStorage.getItem('emailPageSize') || '50');
+let totalPages = 1;
+let totalMessages = 0;
 
-    if (online !== isOnline) {
-        isOnline = online;
-        if (online) {
-            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>Online';
-            statusElement.className = 'text-sm text-green-600';
-            showNotification('Connection restored');
-            loadEmails(); // Refresh emails when connection restored
-        } else {
-            statusElement.innerHTML = '<span class="inline-block w-2 h-2 bg-red-600 rounded-full mr-2"></span>Offline';
-            statusElement.className = 'text-sm text-red-600';
-            showNotification('Connection lost', 'error');
+// Initialize page size from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const pageSizeSelect = document.getElementById('page-size-select');
+    if (pageSizeSelect) {
+        pageSizeSelect.value = pageSize.toString();
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            localStorage.setItem('emailPageSize', pageSize.toString());
+            currentPage = 1; // Reset to first page when changing page size
+            loadEmailsForFolder(currentFolder);
+        });
+    }
+});
+
+// Initialize - SIMPLIFIED VERSION
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM Content Loaded - Starting SIMPLIFIED email client');
+
+    // Check if we're on the mail page
+    if (!document.querySelector('.flex.h-screen')) {
+        console.log('Not on mail page, skipping initialization');
+        return;
+    }
+
+    console.log('📧 Starting simplified authentication and email loading...');
+    console.log('📂 Current folder:', currentFolder);
+
+    // Simple test - authenticate and load emails directly
+    simpleEmailTest().then(() => {
+        // Start polling for new emails after initial load
+        startEmailPolling();
+    });
+    
+    // Request notification permission on page load
+    requestNotificationPermission();
+});
+
+// Stop polling when page is hidden (browser tab inactive)
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        stopEmailPolling();
+    } else {
+        startEmailPolling();
+    }
+});
+
+async function simpleEmailTest() {
+    try {
+        console.log('🔐 Step 1: Authenticating...');
+        const authResponse = await fetch('/fayvad_api/auth/login/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: 'd.kuria',
+                password: 'MeMiMo@0207'
+            })
+        });
+
+        console.log('Auth response status:', authResponse.status);
+        if (!authResponse.ok) {
+            const errorText = await authResponse.text();
+            let errorMessage = `Authentication failed: ${authResponse.status}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.error || errorJson.detail || errorMessage;
+            } catch (e) {
+                if (errorText) errorMessage = errorText.substring(0, 100);
+            }
+            throw new Error(errorMessage);
         }
+
+        const authData = await authResponse.json();
+        const token = authData.token;
+        console.log('✅ Got token:', token.substring(0, 10) + '...');
+
+        // Store token for later use
+        sessionStorage.setItem('auth_token', token);
+
+        console.log('📁 Step 2: Loading folders...');
+        const foldersResponse = await fetch('/fayvad_api/email/folders/', {
+            headers: { 'Authorization': `Token ${token}` }
+        });
+
+        console.log('Folders response status:', foldersResponse.status);
+        if (!foldersResponse.ok) {
+            const errorText = await foldersResponse.text();
+            let errorMessage = `Folders failed: ${foldersResponse.status}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.error || errorMessage;
+            } catch (e) {
+                // Not JSON, use text
+                if (errorText) errorMessage = errorText.substring(0, 100);
+            }
+            throw new Error(errorMessage);
+        }
+
+        const foldersData = await foldersResponse.json();
+        console.log('✅ Folders loaded:', foldersData);
+
+        console.log('📨 Step 3: Loading emails...');
+        // Use currentFolder and pagination state
+        const messagesResponse = await fetch(`/fayvad_api/email/messages/?folder=${currentFolder}&limit=${pageSize}&page=${currentPage}`, {
+            headers: { 'Authorization': `Token ${token}` }
+        });
+
+        console.log('Messages response status:', messagesResponse.status);
+        if (!messagesResponse.ok) {
+            const errorText = await messagesResponse.text();
+            let errorMessage = `Messages failed: ${messagesResponse.status}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.error || errorMessage;
+            } catch (e) {
+                if (errorText) errorMessage = errorText.substring(0, 100);
+            }
+            throw new Error(errorMessage);
+        }
+
+        const messagesData = await messagesResponse.json();
+        const messages = messagesData.messages || [];
+        
+        // Update pagination state
+        if (messagesData.pagination) {
+            currentPage = messagesData.pagination.current_page;
+            totalPages = messagesData.pagination.total_pages;
+            totalMessages = messagesData.pagination.total;
+        }
+        
+        console.log('✅ Messages loaded:', messages.length, 'emails (page', currentPage, 'of', totalPages, ')');
+
+        // Update the UI
+        updateEmailUI(foldersData.folders || [], messages);
+        
+        // Update pagination controls
+        updatePaginationControls();
+        
+        // Initialize unread count for polling
+        const inboxFolder = foldersData.folders?.find(f => f.name === 'INBOX');
+        if (inboxFolder) {
+            lastUnreadCount = inboxFolder.unseen || 0;
+        }
+
+        console.log('🎉 SUCCESS: Email system working!');
+        return Promise.resolve();
+
+    } catch (error) {
+        console.error('❌ Email test failed:', error);
+        
+        // Show error state in UI
+        const emailList = document.querySelector('.divide-y.divide-gray-200');
+        if (emailList) {
+            emailList.innerHTML = `
+                <div class="flex items-center justify-center h-full py-12">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="mt-4 text-sm font-medium text-gray-900">Failed to load emails</h3>
+                        <p class="mt-2 text-sm text-gray-500">${error.message || 'Unknown error'}</p>
+                        <button onclick="location.reload()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150">
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        showNotification('Email loading failed: ' + (error.message || 'Unknown error'), 'error');
+        return Promise.reject(error);
     }
 }
 
+function updateEmailUI(folders, messages) {
+    console.log('🔄 Updating UI with', folders.length, 'folders and', messages.length, 'messages');
+    console.log('📧 Messages data:', messages);
+    
+    // Ensure messages is an array and not a string/object
+    if (!Array.isArray(messages)) {
+        console.error('❌ Messages is not an array:', typeof messages, messages);
+        if (messages && typeof messages === 'object') {
+            // Try to convert object to array
+            messages = Object.values(messages);
+        } else {
+            messages = [];
+        }
+    }
+
+    // Update folder navigation
+    const navElement = document.querySelector('nav.px-2.space-y-1');
+    if (navElement) {
+        navElement.innerHTML = '';
+        folders.forEach(folder => {
+            // Determine folder icon based on folder type
+            let folderIcon = '';
+            if (folder.type === 'inbox') {
+                folderIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>';
+            } else if (folder.type === 'sent') {
+                folderIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>';
+            } else if (folder.type === 'drafts') {
+                folderIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+            } else if (folder.type === 'trash') {
+                folderIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>';
+            } else {
+                folderIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>';
+            }
+            
+            const isActive = folder.name === currentFolder;
+            const link = document.createElement('a');
+            link.href = `?folder=${folder.name}`;
+            link.className = `group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`;
+            link.setAttribute('data-folder', folder.name);
+            link.innerHTML = `
+                <svg class="mr-3 h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${folderIcon}
+                </svg>
+                <span class="flex-1">${folder.name}</span>
+                ${folder.unseen > 0 ? `<span class="ml-auto bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[1.5rem] text-center">${folder.unseen}</span>` : ''}
+            `;
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                switchFolder(folder.name);
+            });
+            navElement.appendChild(link);
+        });
+    }
+
+    // Update email list
+    const emailList = document.querySelector('.divide-y.divide-gray-200');
+    console.log('📋 Email list element:', emailList);
+    console.log('📋 Messages count:', messages.length);
+    console.log('📋 Messages array:', messages);
+    
+    if (emailList && messages.length > 0) {
+        emailList.innerHTML = '';
+        messages.forEach(message => {
+            console.log('📧 Processing message:', message.id || message.message_id, message.subject);
+            // Check if email is unread - handle both is_read boolean and flags
+            // API returns is_read as boolean: true = read, false = unread
+            const isUnread = message.is_read === false || 
+                           (message.is_read === undefined && message.flags && !message.flags.includes('\\Seen')) ||
+                           (message.is_read === undefined && message.flags === undefined);
+            
+            // Debug logging
+            if (isUnread) {
+                console.log('Unread email:', message.subject, 'is_read:', message.is_read, 'flags:', message.flags);
+            }
+            
+            // Apply different styling for unread vs read emails
+            // Unread: blue text color, bold font weight
+            // Read: black/grayish black text color, normal font weight
+            const rowClasses = isUnread 
+                ? 'email-row bg-white hover:bg-blue-50 px-6 py-4 cursor-pointer relative border-l-4 border-blue-500 transition-colors duration-150'
+                : 'email-row bg-white hover:bg-gray-50 px-6 py-4 cursor-pointer relative transition-colors duration-150';
+            
+            // Unread: blue color with bold font
+            // Read: black/grayish black color with normal font
+            const senderClasses = isUnread
+                ? 'text-sm text-blue-600 font-bold truncate'
+                : 'text-sm text-gray-900 font-normal truncate';
+            
+            const subjectClasses = isUnread
+                ? 'text-sm text-blue-600 font-bold truncate'
+                : 'text-sm text-gray-900 font-normal truncate';
+            
+            // Add unread indicator dot
+            const unreadIndicator = isUnread 
+                ? '<span class="inline-block w-2 h-2 bg-blue-600 rounded-full mr-2 flex-shrink-0"></span>'
+                : '<span class="inline-block w-2 h-2 mr-2 flex-shrink-0"></span>';
+            
+            const emailRow = document.createElement('div');
+            emailRow.className = rowClasses;
+            emailRow.setAttribute('data-message-id', message.id || message.message_id);
+            emailRow.setAttribute('data-is-read', isUnread ? 'false' : 'true');
+            emailRow.setAttribute('onclick', `openEmail('${message.id || message.message_id}', '${currentFolder}')`);
+            emailRow.setAttribute('oncontextmenu', `event.preventDefault(); showContextMenu(event, '${message.id || message.message_id}', '${currentFolder}');`);
+            emailRow.innerHTML = `
+                <div class="flex items-start">
+                    <input type="checkbox" class="email-checkbox mr-4 mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onclick="event.stopPropagation();">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center mb-1">
+                            ${unreadIndicator}
+                            <p class="${senderClasses}">
+                                ${message.from_display || message.sender || 'Unknown'}
+                            </p>
+                            <p class="ml-auto text-xs text-gray-500 whitespace-nowrap font-medium">
+                                ${message.date_received ? (() => {
+                                    try {
+                                        const date = new Date(message.date_received);
+                                        return isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+                                    } catch(e) {
+                                        return '';
+                                    }
+                                })() : ''}
+                            </p>
+                        </div>
+                        <div class="flex items-center">
+                            <p class="${subjectClasses} flex-1 min-w-0">
+                                ${message.subject || '(No Subject)'}
+                            </p>
+                            ${message.snippet ? `<p class="ml-3 text-sm text-gray-500 truncate max-w-md">${message.snippet}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            emailList.appendChild(emailRow);
+        });
+    } else if (emailList) {
+        emailList.innerHTML = `
+            <div class="flex items-center justify-center h-full py-12">
+                <div class="text-center">
+                    <p class="text-gray-500">No emails found in this folder.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Email opening functionality
+function openEmail(messageId, folder = 'INBOX') {
+    // Don't open if user is selecting checkboxes
+    const checkedBoxes = document.querySelectorAll('.email-checkbox:checked');
+    if (checkedBoxes.length > 0) return;
+
+    console.log('📧 Opening email:', messageId, 'from folder:', folder);
+    console.log('🔗 Navigating to:', `/mail/email/${messageId}/?folder=${folder}`);
+
+    // Show loading indicator
+    showNotification('Opening email...', 'info');
+
+    // Navigate to email detail page with folder parameter
+    window.location.href = `/mail/email/${messageId}/?folder=${folder}`;
+}
+
+function switchFolder(folderName) {
+    console.log('📂 Switching to folder:', folderName);
+    currentFolder = folderName;
+    currentPage = 1; // Reset to first page when switching folders
+
+    // Update URL
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('folder', folderName);
+    window.history.pushState({}, '', newUrl);
+
+    // Update page title
+    const titleElement = document.querySelector('h1.text-2xl.font-semibold');
+    if (titleElement) {
+        const displayName = folderName === 'INBOX' ? 'Inbox' : folderName;
+        titleElement.textContent = displayName;
+    }
+
+    // Update active folder styling
+    const folderLinks = document.querySelectorAll('nav a[data-folder]');
+    folderLinks.forEach(link => {
+        const linkFolder = link.getAttribute('data-folder');
+        if (linkFolder === folderName) {
+            link.classList.add('bg-gray-200', 'text-gray-900');
+            link.classList.remove('text-gray-600');
+        } else {
+            link.classList.remove('bg-gray-200', 'text-gray-900');
+            link.classList.add('text-gray-600');
+        }
+    });
+
+    // Load emails for new folder
+    loadEmailsForFolder(folderName);
+}
+
+async function loadEmailsForFolder(folderName) {
+    try {
+        console.log('📨 Loading emails for folder:', folderName);
+
+        // Show loading state
+        const emailList = document.querySelector('.divide-y.divide-gray-200');
+        if (emailList) {
+            emailList.innerHTML = `
+                <div class="flex items-center justify-center h-full py-12">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Loading ${folderName}...</h3>
+                    </div>
+        </div>
+    `;
+        }
+
+        let foldersData, messages;
+
+        // Handle drafts folder differently - load from local Django API
+        if (folderName === 'Drafts') {
+            try {
+                // Load folders first (needed for UI)
+                const authToken = sessionStorage.getItem('auth_token');
+                if (authToken) {
+                    const foldersResponse = await fetch('/fayvad_api/email/folders/', {
+                        headers: { 'Authorization': `Token ${authToken}` }
+                    });
+                    if (foldersResponse.ok) {
+                        foldersData = await foldersResponse.json();
+                    }
+                }
+                
+                // If folders failed, create default structure
+                if (!foldersData) {
+                    foldersData = { folders: [] };
+                }
+
+                // Load drafts
+                const draftsResponse = await fetch('/mail/api/drafts/', {
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                    }
+                });
+
+                if (!draftsResponse.ok) {
+                    throw new Error('Failed to load drafts');
+                }
+
+                const draftsData = await draftsResponse.json();
+                console.log('📝 Drafts API response:', draftsData);
+                console.log('📝 Drafts API response type:', typeof draftsData);
+                console.log('📝 Drafts API response keys:', Object.keys(draftsData || {}));
+                
+                // Handle response format: {success: true, drafts: [...]}
+                let rawDrafts = [];
+                if (draftsData && draftsData.drafts) {
+                    rawDrafts = Array.isArray(draftsData.drafts) ? draftsData.drafts : [];
+                } else if (Array.isArray(draftsData)) {
+                    // Handle case where API returns array directly
+                    rawDrafts = draftsData;
+                }
+                
+                console.log('📝 Loaded', rawDrafts.length, 'drafts from API');
+                console.log('📝 Raw drafts:', rawDrafts);
+
+                // Convert drafts to message format with error handling
+                const allDraftMessages = rawDrafts.map((draft, index) => {
+                    try {
+                        // Ensure all fields are properly formatted
+                        const draftId = draft.id ? `draft_${draft.id}` : `draft_${Date.now()}_${index}`;
+                        const subject = draft.subject || '(no subject)';
+                        const body = draft.body || '';
+                        
+                        // Parse date safely
+                        let updatedAt;
+                        try {
+                            if (draft.updated_at) {
+                                updatedAt = new Date(draft.updated_at).toISOString();
+                            } else {
+                                updatedAt = new Date().toISOString();
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse draft date:', draft.updated_at, e);
+                            updatedAt = new Date().toISOString();
+                        }
+                        
+                        // Clean snippet - remove HTML tags and truncate
+                        let snippet = '';
+                        if (body) {
+                            try {
+                                const plainText = body.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+                                snippet = plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText;
+                            } catch (e) {
+                                snippet = '';
+                            }
+                        }
+                        
+                        // Ensure recipients are arrays
+                        let to_recipients = [];
+                        let cc_recipients = [];
+                        let bcc_recipients = [];
+                        
+                        try {
+                            if (Array.isArray(draft.to_recipients)) {
+                                to_recipients = draft.to_recipients;
+                            } else if (typeof draft.to_recipients === 'string') {
+                                to_recipients = draft.to_recipients ? [draft.to_recipients] : [];
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse to_recipients:', e);
+                        }
+                        
+                        try {
+                            if (Array.isArray(draft.cc_recipients)) {
+                                cc_recipients = draft.cc_recipients;
+                            } else if (typeof draft.cc_recipients === 'string') {
+                                cc_recipients = draft.cc_recipients ? [draft.cc_recipients] : [];
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse cc_recipients:', e);
+                        }
+                        
+                        try {
+                            if (Array.isArray(draft.bcc_recipients)) {
+                                bcc_recipients = draft.bcc_recipients;
+                            } else if (typeof draft.bcc_recipients === 'string') {
+                                bcc_recipients = draft.bcc_recipients ? [draft.bcc_recipients] : [];
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse bcc_recipients:', e);
+                        }
+                        
+                        return {
+                            id: draftId,
+                            message_id: draftId,
+                            subject: subject,
+                            sender: 'Draft',
+                            from_display: 'Draft',
+                            date_received: updatedAt,
+                            is_read: true,
+                            has_attachments: false,
+                            snippet: snippet,
+                            body_text: body,
+                            body_html: body, // Include HTML body for drafts
+                            to_recipients: to_recipients,
+                            cc_recipients: cc_recipients,
+                            bcc_recipients: bcc_recipients,
+                            flags: []
+                        };
+                    } catch (error) {
+                        console.error('❌ Error converting draft:', draft, error);
+                        // Return a minimal valid draft object
+                        return {
+                            id: `draft_error_${index}`,
+                            message_id: `draft_error_${index}`,
+                            subject: '(Error loading draft)',
+                            sender: 'Draft',
+                            from_display: 'Draft',
+                            date_received: new Date().toISOString(),
+                            is_read: true,
+                            has_attachments: false,
+                            snippet: '',
+                            body_text: '',
+                            body_html: '',
+                            to_recipients: [],
+                            cc_recipients: [],
+                            bcc_recipients: [],
+                            flags: []
+                        };
+                    }
+                }).filter(draft => draft !== null && draft !== undefined); // Remove any null/undefined entries
+                
+                // Set pagination for drafts (client-side pagination)
+                totalMessages = allDraftMessages.length;
+                totalPages = Math.ceil(totalMessages / pageSize) || 1;
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                messages = allDraftMessages.slice(startIndex, endIndex);
+                
+                console.log('📝 Converted', allDraftMessages.length, 'drafts, showing', messages.length, 'on page', currentPage);
+
+            } catch (error) {
+                console.error('❌ Failed to load drafts:', error);
+                console.error('Error details:', error.stack);
+                messages = [];
+                if (!foldersData) {
+                    foldersData = { folders: [] };
+                }
+            }
+        } else {
+            // For other folders, load from API
+            const authToken = sessionStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No auth token available');
+            }
+
+            // Load folders and messages
+            const [foldersResponse, messagesResponse] = await Promise.all([
+                fetch('/fayvad_api/email/folders/', {
+                    headers: { 'Authorization': `Token ${authToken}` }
+                }),
+                fetch(`/fayvad_api/email/messages/?folder=${folderName}&limit=${pageSize}&page=${currentPage}`, {
+                    headers: { 'Authorization': `Token ${authToken}` }
+                })
+            ]);
+
+            if (!foldersResponse.ok) {
+                const errorText = await foldersResponse.text();
+                let errorMessage = `Failed to load folders: ${foldersResponse.status}`;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.error || errorMessage;
+                } catch (e) {
+                    if (errorText) errorMessage = errorText.substring(0, 100);
+                }
+                throw new Error(errorMessage);
+            }
+            
+            if (!messagesResponse.ok) {
+                const errorText = await messagesResponse.text();
+                let errorMessage = `Failed to load messages: ${messagesResponse.status}`;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.error || errorMessage;
+                } catch (e) {
+                    if (errorText) errorMessage = errorText.substring(0, 100);
+                }
+                throw new Error(errorMessage);
+            }
+
+            foldersData = await foldersResponse.json();
+            const messagesData = await messagesResponse.json();
+            messages = messagesData.messages || [];
+            
+            // Update pagination state
+            if (messagesData.pagination) {
+                currentPage = messagesData.pagination.current_page;
+                totalPages = messagesData.pagination.total_pages;
+                totalMessages = messagesData.pagination.total;
+            }
+        }
+
+        // Ensure messages is defined and is an array
+        if (typeof messages === 'undefined') {
+            console.error('❌ Messages is undefined after loading folder:', folderName);
+            messages = [];
+        }
+        
+        if (!Array.isArray(messages)) {
+            console.error('❌ Messages is not an array:', typeof messages, messages);
+            messages = [];
+        }
+
+        // Update UI
+        updateEmailUI(foldersData?.folders || [], messages);
+        console.log('✅ Successfully loaded folder:', folderName, 'with', messages.length, 'messages (page', currentPage, 'of', totalPages, ')');
+        
+        // Update pagination controls
+        updatePaginationControls();
+
+    } catch (error) {
+        console.error('❌ Failed to load folder:', folderName, error);
+
+        // Show error state
+        const emailList = document.querySelector('.divide-y.divide-gray-200');
+        if (emailList) {
+            emailList.innerHTML = `
+                <div class="flex items-center justify-center h-full py-12">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="mt-4 text-sm font-medium text-gray-900">Failed to load emails</h3>
+                        <p class="mt-2 text-sm text-gray-500">${error.message || 'Unknown error'}</p>
+                        <button onclick="loadEmailsForFolder('${folderName}')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150">
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        showNotification('Failed to load folder: ' + (error.message || 'Unknown error'), 'error');
+    }
+}
+
+// Bulk actions functionality
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.email-checkbox');
+    const checkedBoxes = document.querySelectorAll('.email-checkbox:checked');
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+    const selectedPlural = document.getElementById('selected-plural');
+    const selectedSingular = document.getElementById('selected-singular');
+    const selectAll = document.getElementById('select-all');
+
+    selectedCount.textContent = checkedBoxes.length;
+    
+    // Update plural/singular text
+    if (selectedPlural && selectedSingular) {
+        if (checkedBoxes.length === 1) {
+            selectedPlural.classList.add('hidden');
+            selectedSingular.classList.remove('hidden');
+        } else {
+            selectedPlural.classList.remove('hidden');
+            selectedSingular.classList.add('hidden');
+        }
+    }
+
+    if (checkedBoxes.length > 0) {
+        bulkActions.classList.remove('hidden');
+    } else {
+        bulkActions.classList.add('hidden');
+    }
+
+    // Update select all checkbox
+    selectAll.checked = checkedBoxes.length === checkboxes.length && checkboxes.length > 0;
+    selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup bulk action event listeners
+    const bulkMarkReadBtn = document.getElementById('bulk-mark-read');
+    const bulkMarkUnreadBtn = document.getElementById('bulk-mark-unread');
+    const bulkDeleteBtn = document.getElementById('bulk-delete');
+    const selectAllBtn = document.getElementById('select-all');
+
+    if (bulkMarkReadBtn) {
+        bulkMarkReadBtn.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+        }
+
+            const messageIds = Array.from(selectedCheckboxes).map(cb => {
+                return cb.closest('.email-row').getAttribute('data-message-id');
+            });
+
+            try {
+                // Get auth token
+                const authToken = sessionStorage.getItem('auth_token');
+                if (!authToken) {
+                    throw new Error('No auth token available');
+                }
+
+                // Call bulk action API
+                const response = await fetch('/fayvad_api/email/actions/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'mark_read',
+                        ids: messageIds,
+                        folder: currentFolder
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to mark emails as read');
+                }
+
+        showNotification(`${selectedCheckboxes.length} emails marked as read!`, 'success');
+
+                // Update UI
+        selectedCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            const row = checkbox.closest('.email-row');
+            row.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500');
+            row.querySelectorAll('p').forEach(p => {
+                p.classList.remove('font-bold');
+                p.classList.add('font-normal', 'text-gray-600');
+            });
+        });
+        updateBulkActions();
+
+                // Refresh the current folder
+                loadEmailsForFolder(currentFolder);
+
+            } catch (error) {
+                console.error('Bulk mark read error:', error);
+                showNotification('Failed to mark emails as read.', 'error');
+            }
+        });
+    }
+
+    if (bulkMarkUnreadBtn) {
+        bulkMarkUnreadBtn.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+            }
+
+            const messageIds = Array.from(selectedCheckboxes).map(cb => {
+                return cb.closest('.email-row').getAttribute('data-message-id');
+            });
+
+            try {
+                // Get auth token
+                const authToken = sessionStorage.getItem('auth_token');
+                if (!authToken) {
+                    throw new Error('No auth token available');
+                }
+
+                // Call bulk action API
+                const response = await fetch('/fayvad_api/email/actions/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'mark_unread',
+                        ids: messageIds,
+                        folder: currentFolder
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to mark emails as unread');
+        }
+
+        showNotification(`${selectedCheckboxes.length} emails marked as unread!`, 'success');
+
+                // Update UI
+        selectedCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            const row = checkbox.closest('.email-row');
+            row.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500');
+            row.querySelectorAll('p').forEach(p => {
+                p.classList.add('font-bold', 'text-gray-900');
+                p.classList.remove('font-normal', 'text-gray-600');
+            });
+        });
+        updateBulkActions();
+
+                // Refresh the current folder
+                loadEmailsForFolder(currentFolder);
+
+            } catch (error) {
+                console.error('Bulk mark unread error:', error);
+                showNotification('Failed to mark emails as unread.', 'error');
+            }
+        });
+    }
+
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', async function() {
+        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select emails first.', 'warning');
+            return;
+        }
+
+            if (!confirm(`Delete ${selectedCheckboxes.length} selected email(s)? This action cannot be undone.`)) {
+                return;
+            }
+
+            const messageIds = Array.from(selectedCheckboxes).map(cb => {
+                return cb.closest('.email-row').getAttribute('data-message-id');
+            });
+
+            try {
+                // Get auth token
+                const authToken = sessionStorage.getItem('auth_token');
+                if (!authToken) {
+                    throw new Error('No auth token available');
+                }
+
+                // Call bulk action API
+                const response = await fetch('/fayvad_api/email/actions/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        ids: messageIds,
+                        folder: currentFolder
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete emails');
+                }
+
+            showNotification(`${selectedCheckboxes.length} emails deleted successfully!`, 'success');
+
+                // Remove from UI
+            selectedCheckboxes.forEach(checkbox => {
+                checkbox.closest('.email-row').remove();
+            });
+            updateBulkActions();
+
+                // Refresh the current folder
+                loadEmailsForFolder(currentFolder);
+
+            } catch (error) {
+                console.error('Bulk delete error:', error);
+                showNotification('Failed to delete emails.', 'error');
+            }
+        });
+    }
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.email-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    }
+});
+
+// Simple notification function
 function showNotification(message, type = 'info') {
     const colors = {
         info: 'bg-blue-600',
@@ -355,284 +1211,266 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-function startRealTimeUpdates() {
-    updateInterval = setInterval(() => {
-        checkConnectionStatus();
-        checkForUpdates();
-    }, 30000); // Check every 30 seconds
-}
-
-function stopRealTimeUpdates() {
-    if (updateInterval) {
-        clearInterval(updateInterval);
+// Pagination functions
+function updatePaginationControls() {
+    const paginationButtons = document.getElementById('pagination-buttons');
+    const paginationInfo = document.getElementById('pagination-info');
+    
+    if (!paginationButtons) return;
+    
+    // Update info text
+    if (paginationInfo) {
+        const start = totalMessages > 0 ? ((currentPage - 1) * pageSize) + 1 : 0;
+        const end = Math.min(currentPage * pageSize, totalMessages);
+        paginationInfo.textContent = `Showing ${start}-${end} of ${totalMessages}`;
     }
-}
-
-// Bulk actions functionality
-function updateBulkActions() {
-    const checkboxes = document.querySelectorAll('.email-checkbox');
-    const checkedBoxes = document.querySelectorAll('.email-checkbox:checked');
-    const bulkActions = document.getElementById('bulk-actions');
-    const selectedCount = document.getElementById('selected-count');
-    const selectAll = document.getElementById('select-all');
-
-    selectedCount.textContent = checkedBoxes.length;
-
-    if (checkedBoxes.length > 0) {
-        bulkActions.classList.remove('hidden');
-    } else {
-        bulkActions.classList.add('hidden');
+    
+    // Clear existing buttons
+    paginationButtons.innerHTML = '';
+    
+    if (totalPages <= 1) {
+        // No pagination needed if only one page
+        return;
     }
-
-    // Update select all checkbox
-    selectAll.checked = checkedBoxes.length === checkboxes.length && checkboxes.length > 0;
-    selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
+    
+    // Previous button
+    const prevButton = document.createElement('button');
+    prevButton.className = `px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${currentPage > 1 ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`;
+    prevButton.textContent = 'Previous';
+    prevButton.disabled = currentPage <= 1;
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadEmailsForFolder(currentFolder);
+        }
+    });
+    paginationButtons.appendChild(prevButton);
+    
+    // Page numbers (show up to 5 pages around current)
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust start if we're near the end
+    if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // First page button
+    if (startPage > 1) {
+        const firstButton = document.createElement('button');
+        firstButton.className = 'px-3 py-1.5 text-sm font-medium rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-150';
+        firstButton.textContent = '1';
+        firstButton.addEventListener('click', () => {
+            currentPage = 1;
+            loadEmailsForFolder(currentFolder);
+        });
+        paginationButtons.appendChild(firstButton);
+        
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-2 text-gray-500';
+            ellipsis.textContent = '...';
+            paginationButtons.appendChild(ellipsis);
+        }
+    }
+    
+    // Page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`;
+        pageButton.textContent = i.toString();
+        pageButton.addEventListener('click', () => {
+            currentPage = i;
+            loadEmailsForFolder(currentFolder);
+        });
+        paginationButtons.appendChild(pageButton);
+    }
+    
+    // Last page button
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-2 text-gray-500';
+            ellipsis.textContent = '...';
+            paginationButtons.appendChild(ellipsis);
+        }
+        
+        const lastButton = document.createElement('button');
+        lastButton.className = 'px-3 py-1.5 text-sm font-medium rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-150';
+        lastButton.textContent = totalPages.toString();
+        lastButton.addEventListener('click', () => {
+            currentPage = totalPages;
+            loadEmailsForFolder(currentFolder);
+        });
+        paginationButtons.appendChild(lastButton);
+    }
+    
+    // Next button
+    const nextButton = document.createElement('button');
+    nextButton.className = `px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${currentPage < totalPages ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`;
+    nextButton.textContent = 'Next';
+    nextButton.disabled = currentPage >= totalPages;
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadEmailsForFolder(currentFolder);
+        }
+    });
+    paginationButtons.appendChild(nextButton);
 }
 
-// Initialize email client and load data
-async function initializeEmailClient() {
-    try {
-        emailClient = new EmailAPIClient();
+// Context menu functionality
+let contextMenu = null;
+let currentMessageId = null;
+let currentMessageFolder = null;
 
-        // Load folders
-        await loadFolders();
+function showContextMenu(event, messageId, folder) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    currentMessageId = messageId;
+    currentMessageFolder = folder;
+    
+    // Remove existing context menu
+    if (contextMenu) {
+        contextMenu.remove();
+    }
+    
+    // Create context menu
+    contextMenu = document.createElement('div');
+    contextMenu.className = 'fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-2 min-w-[180px]';
+    contextMenu.style.left = event.pageX + 'px';
+    contextMenu.style.top = event.pageY + 'px';
+    
+    contextMenu.innerHTML = `
+        <button onclick="replyToEmail('${messageId}', '${folder}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+            </svg>
+            Reply
+        </button>
+        <button onclick="forwardEmail('${messageId}', '${folder}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            Forward
+        </button>
+        <div class="border-t border-gray-200 my-1"></div>
+        <button onclick="markAsRead('${messageId}', '${folder}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Mark as Read
+        </button>
+        <button onclick="markAsUnread('${messageId}', '${folder}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            Mark as Unread
+        </button>
+        <div class="border-t border-gray-200 my-1"></div>
+        <button onclick="deleteEmail('${messageId}', '${folder}')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Delete
+        </button>
+    `;
+    
+    document.body.appendChild(contextMenu);
+    
+    // Close menu when clicking outside
+    setTimeout(() => {
+        document.addEventListener('click', closeContextMenu);
+    }, 10);
+}
 
-        // Load initial emails
-        await loadEmails();
+function closeContextMenu() {
+    if (contextMenu) {
+        contextMenu.remove();
+        contextMenu = null;
+    }
+    document.removeEventListener('click', closeContextMenu);
+}
 
-        // Start real-time updates
-        startRealTimeUpdates();
-        checkConnectionStatus();
+// Email actions
+function replyToEmail(messageId, folder) {
+    closeContextMenu();
+    window.location.href = `/mail/email/${messageId}/?folder=${folder}&action=reply`;
+}
 
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                stopRealTimeUpdates();
+function forwardEmail(messageId, folder) {
+    closeContextMenu();
+    window.location.href = `/mail/email/${messageId}/?folder=${folder}&action=forward`;
+}
+
+function markAsRead(messageId, folder) {
+    closeContextMenu();
+    fetch(`/mail/api/mark-read/${messageId}/?folder=${folder}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            showNotification('Email marked as read', 'success');
+            loadMessages(currentFolder);
+        } else {
+            showNotification('Failed to mark as read', 'error');
+        }
+    });
+}
+
+function markAsUnread(messageId, folder) {
+    closeContextMenu();
+    fetch(`/mail/api/mark-unread/${messageId}/?folder=${folder}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            showNotification('Email marked as unread', 'success');
+            loadMessages(currentFolder);
+        } else {
+            showNotification('Failed to mark as unread', 'error');
+        }
+    });
+}
+
+function deleteEmail(messageId, folder) {
+    closeContextMenu();
+    if (confirm('Are you sure you want to delete this email?')) {
+        fetch(`/mail/api/delete/${messageId}/?folder=${folder}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                showNotification('Email deleted', 'success');
+                loadMessages(currentFolder);
             } else {
-                startRealTimeUpdates();
-                checkForUpdates();
+                showNotification('Failed to delete email', 'error');
             }
         });
-
-        // Setup event listeners
-        setupEventListeners();
-
-    } catch (error) {
-        console.error('Failed to initialize email client:', error);
-        showNotification('Failed to load emails. Please refresh the page.', 'error');
     }
 }
 
-async function loadFolders() {
-    try {
-        const response = await emailClient.getFolders();
-        const folders = response.folders || [];
-
-        // Update folder navigation - this would need to be updated to use the API data
-        console.log('Loaded folders:', folders);
-    } catch (error) {
-        console.error('Failed to load folders:', error);
-    }
-}
-
-async function loadEmails() {
-    try {
-        const response = await emailClient.getMessages(currentFolder, 50, currentPage);
-        const messages = response.messages || [];
-        const total = response.total || 0;
-
-        // Update email list
-        const emailList = document.querySelector('.divide-y.divide-gray-200');
-        if (emailList) {
-            emailList.innerHTML = '';
-
-            if (messages.length === 0) {
-                emailList.innerHTML = `
-                    <div class="flex items-center justify-center h-full py-12">
-                        <div class="text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">No emails</h3>
-                            <p class="mt-1 text-sm text-gray-500">No emails found in this folder.</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                messages.forEach(message => {
-                    const emailRow = document.createElement('div');
-                    emailRow.className = `email-row bg-white hover:bg-gray-50 px-6 py-4 cursor-pointer ${!message.is_read ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`;
-                    emailRow.setAttribute('data-message-id', message.id || message.message_id);
-                    emailRow.onclick = () => openEmail(message.id || message.message_id);
-
-                    emailRow.innerHTML = `
-                        <div class="flex items-center">
-                            <input type="checkbox" class="email-checkbox mr-4" onchange="updateBulkActions()">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium ${message.is_read ? 'text-gray-900' : 'text-gray-900 font-semibold'} truncate">
-                                        ${message.from_display || message.sender}
-                                    </p>
-                                    ${message.has_attachments ? `
-                                        <svg class="ml-2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                        </svg>
-                                    ` : ''}
-                                    <p class="ml-auto text-sm text-gray-500">
-                                        ${new Date(message.date_received).toLocaleDateString()}
-                                    </p>
-                                </div>
-                                <div class="flex items-center">
-                                    <p class="text-sm ${message.is_read ? 'text-gray-900' : 'text-gray-900 font-semibold'} truncate">
-                                        ${message.subject || 'No Subject'}
-                                    </p>
-                                    <p class="ml-2 text-sm text-gray-500 truncate flex-1">
-                                        ${message.snippet || message.body_text?.substring(0, 100) || ''}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    emailList.appendChild(emailRow);
-                });
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-    } catch (error) {
-        console.error('Failed to load emails:', error);
-        showNotification('Failed to load emails. Please try again.', 'error');
     }
+    return cookieValue;
 }
-
-function setupEventListeners() {
-    // Bulk operations
-    document.getElementById('bulk-mark-read')?.addEventListener('click', async function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        const messageIds = Array.from(selectedCheckboxes).map(cb => {
-            return cb.closest('.email-row').getAttribute('data-message-id');
-        });
-
-        try {
-            await emailClient.performEmailAction('mark_read', messageIds);
-            showNotification(`${selectedCheckboxes.length} emails marked as read!`, 'success');
-
-            // Update UI
-            selectedCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                const row = checkbox.closest('.email-row');
-                row.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500');
-                row.querySelectorAll('p').forEach(p => {
-                    p.classList.remove('font-semibold');
-                });
-            });
-            updateBulkActions();
-        } catch (error) {
-            showNotification('Failed to mark emails as read.', 'error');
-        }
-    });
-
-    document.getElementById('bulk-mark-unread')?.addEventListener('click', async function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        const messageIds = Array.from(selectedCheckboxes).map(cb => {
-            return cb.closest('.email-row').getAttribute('data-message-id');
-        });
-
-        try {
-            await emailClient.performEmailAction('mark_unread', messageIds);
-            showNotification(`${selectedCheckboxes.length} emails marked as unread!`, 'success');
-
-            // Update UI
-            selectedCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                const row = checkbox.closest('.email-row');
-                row.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500');
-                row.querySelectorAll('p').forEach(p => {
-                    p.classList.add('font-semibold');
-                });
-            });
-            updateBulkActions();
-        } catch (error) {
-            showNotification('Failed to mark emails as unread.', 'error');
-        }
-    });
-
-    document.getElementById('bulk-delete')?.addEventListener('click', async function() {
-        const selectedCheckboxes = document.querySelectorAll('.email-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Please select emails first.', 'warning');
-            return;
-        }
-
-        if (!confirm(`Delete ${selectedCheckboxes.length} selected email(s)? This action cannot be undone.`)) {
-            return;
-        }
-
-        const messageIds = Array.from(selectedCheckboxes).map(cb => {
-            return cb.closest('.email-row').getAttribute('data-message-id');
-        });
-
-        try {
-            await emailClient.performEmailAction('delete', messageIds);
-            showNotification(`${selectedCheckboxes.length} emails deleted successfully!`, 'success');
-
-            // Remove from UI
-            selectedCheckboxes.forEach(checkbox => {
-                checkbox.closest('.email-row').remove();
-            });
-            updateBulkActions();
-        } catch (error) {
-            showNotification('Failed to delete emails.', 'error');
-        }
-    });
-
-    // Select all functionality
-    document.getElementById('select-all')?.addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.email-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-        updateBulkActions();
-    });
-
-    // Refresh button
-    document.getElementById('refresh-btn')?.addEventListener('click', function() {
-        loadEmails();
-        showNotification('Emails refreshed!', 'info');
-    });
-}
-
-// Email interaction functions
-function openEmail(messageId) {
-    // Don't open if user is selecting checkboxes
-    const checkedBoxes = document.querySelectorAll('.email-checkbox:checked');
-    if (checkedBoxes.length > 0) return;
-
-    window.location.href = "{% url 'mail:email_detail' 'MESSAGE_ID' %}".replace('MESSAGE_ID', messageId);
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Get auth token from Django context
-    authToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
-                document.querySelector('[name="csrfmiddlewaretoken"]')?.value;
-
-    // Initialize email client
-    initializeEmailClient();
-});
-
-// Clean up on page unload
-window.addEventListener('beforeunload', function() {
-    stopRealTimeUpdates();
-});
 </script>
 {% endblock %}

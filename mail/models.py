@@ -91,7 +91,6 @@ class EmailAccount(models.Model):
     """Email account model"""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='email_accounts')
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE, related_name='email_accounts')
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, related_name='email_accounts')
 
     email = models.EmailField(unique=True)
@@ -106,6 +105,10 @@ class EmailAccount(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(null=True, blank=True)
+    
+    # Password hash for Dovecot (stored separately from Django user password)
+    # Format: CRYPT hash compatible with Dovecot
+    password_hash = models.CharField(max_length=255, blank=True, null=True, help_text="Password hash for Dovecot authentication")
 
     class Meta:
         verbose_name = _('Email Account')
@@ -122,6 +125,11 @@ class EmailAccount(models.Model):
     @property
     def usage_percentage(self):
         return (self.usage_mb / self.quota_mb * 100) if self.quota_mb > 0 else 0
+    
+    @property
+    def organization(self):
+        """Derived from domain.organization (3NF compliance)"""
+        return self.domain.organization
 
 
 class EmailFolder(models.Model):
@@ -170,7 +178,6 @@ class EmailMessage(models.Model):
     """Email message model"""
 
     folder = models.ForeignKey(EmailFolder, on_delete=models.CASCADE, related_name='messages')
-    account = models.ForeignKey(EmailAccount, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
 
     # Message identifiers
     message_id = models.CharField(max_length=255, unique=True, db_index=True)
@@ -190,8 +197,8 @@ class EmailMessage(models.Model):
     snippet = models.TextField(blank=True, null=True) 
 
     # Metadata
-    date_sent = models.DateTimeField()
-    date_received = models.DateTimeField(auto_now_add=True)
+    date_sent = models.DateTimeField(help_text="Date when email was sent (from email header)")
+    date_received = models.DateTimeField(help_text="Date when email was received (from email header or server)")
     size_bytes = models.IntegerField(default=0)
 
     # Status
@@ -220,6 +227,11 @@ class EmailMessage(models.Model):
     @property
     def has_attachments(self):
         return self.attachments.exists()
+    
+    @property
+    def account(self):
+        """Derived from folder.account (3NF compliance)"""
+        return self.folder.account
 
 
 class EmailAttachment(models.Model):
@@ -238,8 +250,8 @@ class EmailAttachment(models.Model):
 
     # Temporary storage for uploads before email sending
     is_temporary = models.BooleanField(default=False)
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_attachments')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_attachments', null=True, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Email Attachment')
@@ -277,7 +289,6 @@ class Draft(models.Model):
 class EmailTemplate(models.Model):
     """Email templates for business communications"""
 
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE, related_name='email_templates')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='email_templates')
 
     name = models.CharField(max_length=100)
@@ -304,16 +315,21 @@ class EmailTemplate(models.Model):
     class Meta:
         verbose_name = _('Email Template')
         verbose_name_plural = _('Email Templates')
-        unique_together = ['organization', 'name']
+        unique_together = ['user', 'name']
+    
+    @property
+    def organization(self):
+        """Derived from user.organization (3NF compliance)"""
+        return self.user.organization if self.user.organization else None
 
     def __str__(self):
-        return f"{self.organization.name}: {self.name}"
+        org_name = self.organization.name if self.organization else "No Organization"
+        return f"{org_name}: {self.name}"
 
 
 class Contact(models.Model):
     """Contact management for CRM"""
 
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE, related_name='contacts')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='contacts')
 
     # Basic info
@@ -357,6 +373,11 @@ class Contact(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.email}"
+    
+    @property
+    def organization(self):
+        """Derived from user.organization (3NF compliance)"""
+        return self.user.organization if self.user.organization else None
 
 
 class Task(models.Model):
@@ -457,7 +478,6 @@ class Project(models.Model):
 class Document(models.Model):
     """Document management for file storage and sharing"""
 
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE, related_name='documents')
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_documents')
 
     title = models.CharField(max_length=255)
@@ -501,13 +521,17 @@ class Document(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.file_name})"
+    
+    @property
+    def organization(self):
+        """Derived from uploaded_by.organization (3NF compliance)"""
+        return self.uploaded_by.organization if self.uploaded_by.organization else None
 
 
 class EmailSignature(models.Model):
     """Email signatures for professional branding"""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='email_signatures')
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE, related_name='email_signatures')
 
     name = models.CharField(max_length=100)
     text_content = models.TextField()
@@ -526,6 +550,11 @@ class EmailSignature(models.Model):
         verbose_name = _('Email Signature')
         verbose_name_plural = _('Email Signatures')
         unique_together = ['user', 'name']
+    
+    @property
+    def organization(self):
+        """Derived from user.organization (3NF compliance)"""
+        return self.user.organization if self.user.organization else None
 
     def __str__(self):
         return f"{self.user.get_full_name()}: {self.name}"

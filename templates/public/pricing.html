@@ -1,0 +1,302 @@
+{% extends "public/base.html" %}
+
+{% block title %}Pricing - Fayvad Mail{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                Simple, Transparent Pricing
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                Choose the perfect plan for your business. All plans include our core features with no hidden fees.
+            </p>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-4">
+
+            <!-- Free Plan -->
+            <div class="bg-white rounded-lg shadow-md divide-y divide-gray-200">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900">Free</h2>
+                    <p class="mt-4 text-sm text-gray-500">Perfect for getting started or small teams</p>
+                    <p class="mt-8">
+                        <span class="text-4xl font-extrabold text-gray-900">KES 0</span>
+                        <span class="text-base font-medium text-gray-500">/year</span>
+                    </p>
+                    <a href="{% url 'accounts:register' %}" class="mt-8 block w-full bg-gray-800 border border-gray-800 rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-gray-900">
+                        Get Started
+                    </a>
+                </div>
+                <div class="pt-6 pb-8 px-6">
+                    <h3 class="text-xs font-medium text-gray-900 tracking-wide uppercase">What's included</h3>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Up to 5 email accounts</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">5GB storage per account</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Webmail access</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Basic spam protection</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Community support</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Basic Plan -->
+            <div class="bg-white rounded-lg shadow-md divide-y divide-gray-200 relative">
+                <div class="absolute inset-0 bg-indigo-500 rounded-lg opacity-5"></div>
+                <div class="relative p-6">
+                    <h2 class="text-lg font-medium text-gray-900">Basic</h2>
+                    <p class="mt-4 text-sm text-gray-500">Great for small businesses and startups</p>
+                    <p class="mt-8">
+                        <span class="text-4xl font-extrabold text-gray-900">KES 10,000</span>
+                        <span class="text-base font-medium text-gray-500">/year</span>
+                    </p>
+                    <a href="{% url 'accounts:register' %}" class="mt-8 block w-full bg-indigo-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-indigo-700">
+                        Get Started
+                    </a>
+                </div>
+                <div class="relative pt-6 pb-8 px-6">
+                    <h3 class="text-xs font-medium text-gray-900 tracking-wide uppercase">What's included</h3>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Up to 10 email accounts</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">25GB storage per account</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Priority spam protection</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Email forwarding</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Email support</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Mobile access</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Professional Plan -->
+            <div class="bg-white rounded-lg shadow-md divide-y divide-gray-200">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900">Professional</h2>
+                    <p class="mt-4 text-sm text-gray-500">Ideal for growing businesses</p>
+                    <p class="mt-8">
+                        <span class="text-4xl font-extrabold text-gray-900">KES 15,000</span>
+                        <span class="text-base font-medium text-gray-500">/year</span>
+                    </p>
+                    <a href="{% url 'accounts:register' %}" class="mt-8 block w-full bg-indigo-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-indigo-700">
+                        Get Started
+                    </a>
+                </div>
+                <div class="pt-6 pb-8 px-6">
+                    <h3 class="text-xs font-medium text-gray-900 tracking-wide uppercase">What's included</h3>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Up to 20 email accounts</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">50GB storage per account</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Advanced spam filtering</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Shared calendars</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Priority support</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">API access</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Everything in Basic</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="bg-white rounded-lg shadow-md divide-y divide-gray-200 relative">
+                <div class="absolute top-0 right-0 bg-indigo-500 text-white px-3 py-1 text-xs font-semibold rounded-bl-lg rounded-tr-lg">
+                    Most Popular
+                </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900">Enterprise</h2>
+                    <p class="mt-4 text-sm text-gray-500">For large organizations and enterprises</p>
+                    <p class="mt-8">
+                        <span class="text-4xl font-extrabold text-gray-900">KES 50,000</span>
+                        <span class="text-base font-medium text-gray-500">/year</span>
+                    </p>
+                    <a href="{% url 'accounts:register' %}" class="mt-8 block w-full bg-indigo-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-indigo-700">
+                        Get Started
+                    </a>
+                </div>
+                <div class="pt-6 pb-8 px-6">
+                    <h3 class="text-xs font-medium text-gray-900 tracking-wide uppercase">What's included</h3>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Up to 100 email accounts</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Unlimited storage</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Custom domain branding</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Advanced analytics</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Dedicated account manager</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Phone support</span>
+                        </li>
+                        <li class="flex space-x-3">
+                            <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Everything in Professional</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="mt-16">
+            <div class="bg-white">
+                <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
+                    <div class="lg:grid lg:grid-cols-3 lg:gap-8">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-gray-900">Frequently asked questions</h2>
+                            <p class="mt-4 text-lg text-gray-500">
+                                Can't find the answer you're looking for? Reach out to our
+                                <a href="{% url 'support' %}" class="font-medium text-indigo-600 hover:text-indigo-500">customer support</a> team.
+                            </p>
+                        </div>
+                        <div class="mt-12 lg:mt-0 lg:col-span-2">
+                            <dl class="space-y-10">
+                                <div>
+                                    <dt class="text-lg font-medium text-gray-900">Can I change plans anytime?</dt>
+                                    <dd class="mt-2 text-base text-gray-500">
+                                        Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any charges.
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-lg font-medium text-gray-900">Do you offer refunds?</dt>
+                                    <dd class="mt-2 text-base text-gray-500">
+                                        We offer a 30-day money-back guarantee for all paid plans. If you're not satisfied, contact our support team for a full refund.
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-lg font-medium text-gray-900">What payment methods do you accept?</dt>
+                                    <dd class="mt-2 text-base text-gray-500">
+                                        We accept M-Pesa, card payments, and bank transfers. All payments are processed securely through our certified payment partners.
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-lg font-medium text-gray-900">Is there a setup fee?</dt>
+                                    <dd class="mt-2 text-base text-gray-500">
+                                        No setup fees for any of our plans. You only pay the annual subscription fee, and that's it.
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

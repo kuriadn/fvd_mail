@@ -2,10 +2,9 @@ services:
   fayvad_mail:
     build: .
     container_name: fayvad_mail_web
-    networks:
-      - fayvad_mail_net
-    ports:
-      - "8005:8000"
+    network_mode: host
+    env_file:
+      - .env
     volumes:
       - .:/app
       - staticfiles:/app/staticfiles
@@ -17,12 +16,14 @@ services:
       - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
       - FAYVAD_MAIL_DB_USER=fayvad
       - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
-      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_HOST=localhost
       - FAYVAD_MAIL_DB_PORT=5432
-      - MODOBOA_API_URL=http://host.docker.internal:8000/fayvad_api
-    command: python manage.py runserver 0.0.0.0:8000
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - MODOBOA_API_URL=http://localhost:8000/fayvad_api
+      - NAMECHEAP_API_USER=${NAMECHEAP_API_USER}
+      - NAMECHEAP_API_KEY=${NAMECHEAP_API_KEY}
+      - NAMECHEAP_CLIENT_IP=${NAMECHEAP_CLIENT_IP}
+      - NAMECHEAP_API_SANDBOX=${NAMECHEAP_API_SANDBOX:-False}
+    command: python manage.py runserver 0.0.0.0:8005
 
 volumes:
   staticfiles:
@@ -30,3 +31,7 @@ volumes:
 
 networks:
   fayvad_mail_net:
+
+# Deployment helper script
+# Run this after 'docker compose up' to deploy static files:
+# ./deploy-static.sh

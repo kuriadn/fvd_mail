@@ -33,7 +33,7 @@ def get_org_email_accounts(request):
         if not request.user.organization:
             return Response({'error': 'User not associated with an organization'}, status=status.HTTP_400_BAD_REQUEST)
 
-        accounts = EmailAccount.objects.filter(organization=request.user.organization)
+        accounts = EmailAccount.objects.filter(domain__organization=request.user.organization)
 
         account_data = []
         for account in accounts:
@@ -67,7 +67,7 @@ def create_org_email_account(request):
             return Response({'error': 'User not associated with an organization'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check limits
-        current_accounts = EmailAccount.objects.filter(organization=request.user.organization).count()
+        current_accounts = EmailAccount.objects.filter(domain__organization=request.user.organization).count()
         if current_accounts >= request.user.organization.max_users:
             return Response({'error': 'Organization user limit reached'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -89,7 +89,6 @@ def create_org_email_account(request):
 
         email_account = EmailAccount.objects.create(
             user=user,
-            organization=request.user.organization,
             domain=domain,
             email=f"{request.data['username']}@{domain_name}",
             first_name=request.data.get('first_name', ''),
@@ -152,8 +151,8 @@ def get_org_dashboard(request):
 
         # Basic dashboard data
         total_users = User.objects.filter(organization=org).count()
-        total_email_accounts = EmailAccount.objects.filter(organization=org).count()
-        active_email_accounts = EmailAccount.objects.filter(organization=org, is_active=True).count()
+        total_email_accounts = EmailAccount.objects.filter(domain__organization=org).count()
+        active_email_accounts = EmailAccount.objects.filter(domain__organization=org, is_active=True).count()
 
         return Response({
             'organization_name': org.name,
@@ -217,7 +216,7 @@ def bulk_create_email_accounts(request):
             return Response({'error': 'Account data required'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check limits
-        current_accounts = EmailAccount.objects.filter(organization=request.user.organization).count()
+        current_accounts = EmailAccount.objects.filter(domain__organization=request.user.organization).count()
         if current_accounts + len(accounts_data) > request.user.organization.max_users:
             return Response({'error': 'Would exceed organization user limit'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -241,7 +240,6 @@ def bulk_create_email_accounts(request):
             # Create email account
             email_account = EmailAccount.objects.create(
                 user=user,
-                organization=request.user.organization,
                 domain=domain,
                 email=f"{account_data['username']}@{domain_name}",
                 first_name=account_data.get('first_name', ''),

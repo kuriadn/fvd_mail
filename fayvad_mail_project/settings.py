@@ -24,9 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-change-in-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes", "on")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'mail.fayvad.com']
+# Serve static files in development only (nginx handles production)
+SERVE_STATIC_FILES = os.getenv("SERVE_STATIC_FILES", "False").lower() in ("true", "1", "yes", "on")
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'mail.fayvad.com', '167.86.95.242']
 
 # CSRF Configuration
 CSRF_TRUSTED_ORIGINS = [
@@ -73,7 +76,7 @@ INSTALLED_APPS = [
     "theme",
     # Third party
     # "rest_framework",
-    # "django_ckeditor_5",
+    # "django_ckeditor_5",  # Commented out to prevent CKEditor conflicts
 ]
 
 MIDDLEWARE = [
@@ -109,9 +112,6 @@ WSGI_APPLICATION = "fayvad_mail_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Database configuration for Modoboa integration
-# Use environment variables to determine integration approach
-USE_MODOBOA_DB = os.environ.get("USE_MODOBOA_DB", "False").lower() == "true"
 FAYVAD_MAIL_API_BASE = os.environ.get("FAYVAD_MAIL_API_BASE", "https://mail.fayvad.com/fayvad_api")
 
 DATABASES = {
@@ -177,6 +177,10 @@ AUTH_USER_MODEL = "accounts.User"
 
 # REST Framework
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "fayvad_api.auth.CacheTokenAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
@@ -184,100 +188,132 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 50,
 }
 
-# CKEditor 5 Configuration
-customColorPalette = [
-        {
-            'color': 'hsl(4, 90%, 58%)',
-            'label': 'Red'
-        },
-        {
-            'color': 'hsl(340, 82%, 52%)',
-            'label': 'Pink'
-        },
-        {
-            'color': 'hsl(291, 64%, 42%)',
-            'label': 'Purple'
-        },
-        {
-            'color': 'hsl(262, 52%, 47%)',
-            'label': 'Deep Purple'
-        },
-        {
-            'color': 'hsl(231, 48%, 48%)',
-            'label': 'Indigo'
-        },
-        {
-            'color': 'hsl(207, 90%, 54%)',
-            'label': 'Blue'
-        },
-    ]
-
-CKEDITOR_5_CONFIGS = {
-    'default': {
-        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
-                   'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
-    },
-    'extends': {
-        'blockToolbar': [
-            'paragraph', 'heading1', 'heading2', 'heading3',
-            '|',
-            'bulletedList', 'numberedList',
-            '|',
-            'blockQuote',
-        ],
-        'toolbar': ['heading', '|', 'outdent', 'indent', '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
-                   'code','subscript', 'superscript', 'highlight', '|', 'codeBlock', 'sourceEditing', 'insertImage',
-                    'bulletedList', 'numberedList', 'todoList', '|',  'blockQuote', 'imageUpload', '|',
-                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'mediaEmbed', 'removeFormat',
-                    'insertTable', 'sourceEditing', 'codeBlock', 'htmlEmbed', '|', 'undo', 'redo'],
-        'image': {
-            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
-                        'imageStyle:alignRight', 'imageStyle:alignCenter', 'imageStyle:side',  '|'],
-            'styles': [
-                'full',
-                'side',
-                'alignLeft',
-                'alignRight',
-                'alignCenter',
-            ]
-
-        },
-        'table': {
-            'contentToolbar': [ 'tableColumn', 'tableRow', 'mergeTableCells',
-            'tableProperties', 'tableCellProperties' ],
-            'tableProperties': {
-                'borderColors': customColorPalette,
-                'backgroundColors': customColorPalette
-            },
-            'tableCellProperties': {
-                'borderColors': customColorPalette,
-                'backgroundColors': customColorPalette
-            }
-        },
-        'heading' : {
-            'options': [
-                { 'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph' },
-                { 'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1' },
-                { 'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2' },
-                { 'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3' }
-            ]
-        }
-    },
-    'email_config': {
-        'toolbar': ['bold', 'italic', 'underline', 'link', '|', 'bulletedList', 'numberedList'],
-        'height': '300px',
-        'width': '100%',
-    },
-    'list': {
-        'properties': {
-            'styles': 'true',
-            'startIndex': 'true',
-            'reversed': 'true',
-        }
-    }
-}
+# CKEditor 5 Configuration - Commented out to prevent conflicts with CDN version
+# customColorPalette = [
+#         {
+#             'color': 'hsl(4, 90%, 58%)',
+#             'label': 'Red'
+#         },
+#         {
+#             'color': 'hsl(340, 82%, 52%)',
+#             'label': 'Pink'
+#         },
+#         {
+#             'color': 'hsl(291, 64%, 42%)',
+#             'label': 'Purple'
+#         },
+#         {
+#             'color': 'hsl(262, 52%, 47%)',
+#             'label': 'Deep Purple'
+#         },
+#         {
+#             'color': 'hsl(231, 48%, 48%)',
+#             'label': 'Indigo'
+#         },
+#         {
+#             'color': 'hsl(207, 90%, 54%)',
+#             'label': 'Blue'
+#         },
+#     ]
+#
+# CKEDITOR_5_CONFIGS = {
+#     'default': {
+#         'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+#                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
+#     },
+#     'extends': {
+#         'blockToolbar': [
+#             'paragraph', 'heading1', 'heading2', 'heading3',
+#             '|',
+#             'bulletedList', 'numberedList',
+#             '|',
+#             'blockQuote',
+#         ],
+#         'toolbar': ['heading', '|', 'outdent', 'indent', '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
+#                    'code','subscript', 'superscript', 'highlight', '|', 'codeBlock', 'sourceEditing', 'insertImage',
+#                     'bulletedList', 'numberedList', 'todoList', '|',  'blockQuote', 'imageUpload', '|',
+#                     'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'mediaEmbed', 'removeFormat',
+#                     'insertTable', 'sourceEditing', 'codeBlock', 'htmlEmbed', '|', 'undo', 'redo'],
+#         'image': {
+#             'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
+#                         'imageStyle:alignRight', 'imageStyle:alignCenter', 'imageStyle:side',  '|'],
+#             'styles': [
+#                 'full',
+#                 'side',
+#                 'alignLeft',
+#                 'alignRight',
+#                 'alignCenter',
+#             ]
+#
+#         },
+#         'table': {
+#             'contentToolbar': [ 'tableColumn', 'tableRow', 'mergeTableCells',
+#             'tableProperties', 'tableCellProperties' ],
+#             'tableProperties': {
+#                 'borderColors': customColorPalette,
+#                 'backgroundColors': customColorPalette
+#             },
+#             'tableCellProperties': {
+#                 'borderColors': customColorPalette,
+#                 'backgroundColors': customColorPalette
+#             }
+#         },
+#         'heading' : {
+#             'options': [
+#                 { 'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph' },
+#                 { 'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1' },
+#                 { 'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2' },
+#                 { 'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3' }
+#             ]
+#         }
+#     },
+#     'email_config': {
+#         'toolbar': ['bold', 'italic', 'underline', 'link', '|', 'bulletedList', 'numberedList'],
+#         'height': '300px',
+#         'width': '100%',
+#     },
+#     'list': {
+#         'properties': {
+#             'styles': 'true',
+#             'startIndex': 'true',
+#             'reversed': 'true',
+#         }
+#     }
+# }
 
 # Login/Logout URLs
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/mail/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Email Configuration - Django Email Backend
+# Using Postfix (SMTP) and Dovecot (IMAP) on localhost
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+
+# Postfix SMTP Configuration (for sending emails)
+# Use host.docker.internal when running in Docker, localhost otherwise
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'host.docker.internal' if os.path.exists('/.dockerenv') else 'localhost')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))  # Use 587 (submission) with TLS, or 25 (relay) without TLS
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes', 'on')  # Enable TLS for secure transmission
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 'yes', 'on')  # Use SSL for port 465
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')  # SMTP auth username (email address)
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')  # SMTP auth password
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@fayvad.com')
+
+# Dovecot IMAP Configuration (for receiving emails)
+# Use host.docker.internal when running in Docker, localhost otherwise
+EMAIL_IMAP_HOST = os.getenv('EMAIL_IMAP_HOST', 'host.docker.internal' if os.path.exists('/.dockerenv') else 'localhost')  # Dovecot IMAP server
+EMAIL_IMAP_PORT = int(os.getenv('EMAIL_IMAP_PORT', '143'))  # Dovecot default port (993 for SSL, 143 for plain)
+EMAIL_IMAP_USE_SSL = os.getenv('EMAIL_IMAP_USE_SSL', 'False').lower() in ('true', '1', 'yes', 'on')  # True for port 993, False for 143
+
+# Mail Server Configuration
+# Mail server hostname for DNS records (MX, SPF, etc.)
+MAIL_SERVER_HOSTNAME = os.getenv('MAIL_SERVER_HOSTNAME', 'mail.fayvad.com')
+MAIL_SERVER_IP = os.getenv('MAIL_SERVER_IP', '167.86.95.242')  # A record for mail.fayvad.com
+
+# Namecheap API Configuration (for programmatic DNS management)
+# Server IP: 167.86.95.242 (must be whitelisted in Namecheap API settings)
+NAMECHEAP_API_USER = os.getenv('NAMECHEAP_API_USER', '')
+NAMECHEAP_API_KEY = os.getenv('NAMECHEAP_API_KEY', '')
+NAMECHEAP_CLIENT_IP = os.getenv('NAMECHEAP_CLIENT_IP', '167.86.95.242')  # Production server IP
+NAMECHEAP_API_SANDBOX = os.getenv('NAMECHEAP_API_SANDBOX', 'False').lower() in ('true', '1', 'yes', 'on')

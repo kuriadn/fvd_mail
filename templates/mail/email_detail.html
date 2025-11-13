@@ -4,18 +4,19 @@
 {% block title %}{{ message.subject }} - Fayvad Mail{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white shadow rounded-lg">
+<div class="max-w-4xl mx-auto py-6">
+<div class="bg-white shadow-lg rounded-lg">
     <!-- Email header -->
-    <div class="px-6 py-4 border-b border-gray-200">
+    <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
         <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold text-gray-900 truncate">{{ message.subject }}</h1>
-            <div class="flex items-center space-x-2">
-                <button onclick="markAsUnread()" class="text-gray-400 hover:text-gray-600">
+            <h1 class="text-2xl font-bold text-gray-900 truncate pr-4">{{ message.subject }}</h1>
+            <div class="flex items-center space-x-2 flex-shrink-0">
+                <button onclick="markAsUnread()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150" title="Mark as unread">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                 </button>
-                <button onclick="deleteMessage()" class="text-gray-400 hover:text-red-600">
+                <button onclick="deleteMessage()" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150" title="Delete">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -27,37 +28,114 @@
     <!-- Email metadata -->
     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <span class="text-sm font-medium text-gray-500">From:</span>
-                <span class="ml-2 text-sm text-gray-900">{{ message.from_display }}</span>
+            <div class="flex items-start">
+                <span class="text-sm font-semibold text-gray-600 min-w-[4rem]">From:</span>
+                <span class="ml-2 text-sm text-gray-900 break-words">{{ message.from_display }}</span>
             </div>
-            <div>
-                <span class="text-sm font-medium text-gray-500">Date:</span>
-                <span class="ml-2 text-sm text-gray-900">{{ message.date_received|date:"F j, Y \a\t g:i A" }}</span>
+            <div class="flex items-start">
+                <span class="text-sm font-semibold text-gray-600 min-w-[4rem]">Date:</span>
+                <span class="ml-2 text-sm text-gray-900">
+                    {% if message.date_received %}
+                        {% load tz %}
+                        {{ message.date_received|date:"F j, Y \a\t g:i A" }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </span>
             </div>
             {% if message.to_recipients %}
-            <div class="md:col-span-2">
-                <span class="text-sm font-medium text-gray-500">To:</span>
-                <span class="ml-2 text-sm text-gray-900">{{ message.to_recipients|join:", " }}</span>
+            <div class="md:col-span-2 flex items-start">
+                <span class="text-sm font-semibold text-gray-600 min-w-[4rem]">To:</span>
+                <span class="ml-2 text-sm text-gray-900 break-words">{{ message.to_recipients|join:", " }}</span>
             </div>
             {% endif %}
             {% if message.cc_recipients %}
-            <div class="md:col-span-2">
-                <span class="text-sm font-medium text-gray-500">CC:</span>
-                <span class="ml-2 text-sm text-gray-900">{{ message.cc_recipients|join:", " }}</span>
+            <div class="md:col-span-2 flex items-start">
+                <span class="text-sm font-semibold text-gray-600 min-w-[4rem]">CC:</span>
+                <span class="ml-2 text-sm text-gray-900 break-words">{{ message.cc_recipients|join:", " }}</span>
             </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Email content -->
-    <div class="px-6 py-6">
+    <div class="px-6 py-8">
         {% if message.body_html %}
-            <div class="prose max-w-none">
-                {{ message.body_html|safe }}
+            <div class="email-content-wrapper">
+                <style>
+                    .email-content-wrapper {
+                        max-width: 100%;
+                        overflow-x: auto;
+                    }
+                    .email-content-wrapper * {
+                        max-width: 100%;
+                    }
+                    .email-content-wrapper img {
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        margin: 1rem 0;
+                    }
+                    .email-content-wrapper table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1rem 0;
+                    }
+                    .email-content-wrapper table td,
+                    .email-content-wrapper table th {
+                        padding: 0.5rem;
+                        border: 1px solid #e5e7eb;
+                    }
+                    .email-content-wrapper pre {
+                        background: #f3f4f6;
+                        padding: 1rem;
+                        border-radius: 0.375rem;
+                        overflow-x: auto;
+                        font-family: 'Courier New', monospace;
+                    }
+                    .email-content-wrapper blockquote {
+                        border-left: 4px solid #3b82f6;
+                        padding-left: 1rem;
+                        margin: 1rem 0;
+                        color: #6b7280;
+                    }
+                    .email-content-wrapper a {
+                        color: #2563eb;
+                        text-decoration: underline;
+                    }
+                    .email-content-wrapper a:hover {
+                        color: #1d4ed8;
+                    }
+                    .email-content-wrapper p {
+                        margin: 0.75rem 0;
+                        line-height: 1.6;
+                    }
+                    .email-content-wrapper h1,
+                    .email-content-wrapper h2,
+                    .email-content-wrapper h3,
+                    .email-content-wrapper h4,
+                    .email-content-wrapper h5,
+                    .email-content-wrapper h6 {
+                        margin-top: 1.5rem;
+                        margin-bottom: 0.75rem;
+                        font-weight: 600;
+                        line-height: 1.2;
+                    }
+                    .email-content-wrapper ul,
+                    .email-content-wrapper ol {
+                        margin: 1rem 0;
+                        padding-left: 2rem;
+                    }
+                    .email-content-wrapper li {
+                        margin: 0.5rem 0;
+                    }
+                </style>
+                <div class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none">
+                    {{ message.body_html|safe }}
+                </div>
             </div>
         {% else %}
-            <div class="whitespace-pre-wrap text-gray-900">
+            <div class="whitespace-pre-wrap text-gray-900 font-mono text-sm leading-relaxed">
                 {{ message.body_text }}
             </div>
         {% endif %}
@@ -89,18 +167,28 @@
     {% endif %}
 
     <!-- Action buttons -->
-    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
         <div class="flex justify-between">
-            <div class="flex space-x-3">
-                <a href="{% url 'mail:inbox' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <div class="flex flex-wrap gap-2">
+                <a href="{% url 'mail:inbox' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-150">
                     Back to Inbox
                 </a>
-                <button onclick="reply()" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700">
+                <button onclick="reply()" class="bg-blue-600 py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-150">
                     Reply
+                </button>
+                <button onclick="forward()" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                    Forward
+                </button>
+                <button onclick="markAsUnread()" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                    Mark Unread
+                </button>
+                <button onclick="deleteMessage()" class="bg-white py-2 px-4 border border-red-300 rounded-lg shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 transition-colors duration-150">
+                    Delete
                 </button>
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
@@ -131,8 +219,62 @@ function deleteMessage() {
 }
 
 function reply() {
-    // Implement reply functionality
-    alert('Reply functionality would be implemented here');
+    const folder = new URLSearchParams(window.location.search).get('folder') || 'INBOX';
+    window.location.href = `/mail/email/{{ message.message_id }}/?folder=${folder}&action=reply`;
+}
+
+function forward() {
+    const folder = new URLSearchParams(window.location.search).get('folder') || 'INBOX';
+    window.location.href = `/mail/email/{{ message.message_id }}/?folder=${folder}&action=forward`;
+}
+
+function markAsUnread() {
+    const folder = new URLSearchParams(window.location.search).get('folder') || 'INBOX';
+    fetch("{% url 'mail:mark_unread' message.message_id %}?folder=" + folder, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            window.location.href = "{% url 'mail:inbox' %}";
+        } else {
+            alert('Failed to mark as unread');
+        }
+    });
+}
+
+function deleteMessage() {
+    if (confirm('Are you sure you want to delete this message?')) {
+        const folder = new URLSearchParams(window.location.search).get('folder') || 'INBOX';
+        fetch("{% url 'mail:delete_message' message.message_id %}?folder=" + folder, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                window.location.href = "{% url 'mail:inbox' %}";
+            } else {
+                alert('Failed to delete message');
+            }
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 </script>
 {% endblock %}

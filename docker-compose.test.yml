@@ -1,0 +1,100 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: fayvad_mail_test
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-test-key-change-in-production
+      - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
+      - FAYVAD_MAIL_DB_USER=fayvad
+      - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
+      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_PORT=5432
+      - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: python manage.py test --keepdb --verbosity=2
+
+  test_normalization:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: fayvad_mail_test_normalization
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-test-key-change-in-production
+      - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
+      - FAYVAD_MAIL_DB_USER=fayvad
+      - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
+      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_PORT=5432
+      - EMAIL_IMAP_HOST=host.docker.internal
+      - EMAIL_IMAP_PORT=143
+      - EMAIL_IMAP_USE_SSL=False
+      - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: python test_normalization.py
+
+  test_consistency:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: fayvad_mail_test_consistency
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: bash test_consistency.sh
+
+  check_migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: fayvad_mail_check_migration
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-test-key-change-in-production
+      - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
+      - FAYVAD_MAIL_DB_USER=fayvad
+      - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
+      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_PORT=5432
+      - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: python check_migration_readiness.py
+
+  test_workflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: fayvad_mail_test_workflow
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-test-key-change-in-production
+      - FAYVAD_MAIL_DB_NAME=fayvad_mail_db
+      - FAYVAD_MAIL_DB_USER=fayvad
+      - FAYVAD_MAIL_DB_PASSWORD=MeMiMo@0207
+      - FAYVAD_MAIL_DB_HOST=host.docker.internal
+      - FAYVAD_MAIL_DB_PORT=5432
+      - EMAIL_IMAP_HOST=host.docker.internal
+      - EMAIL_IMAP_PORT=143
+      - EMAIL_IMAP_USE_SSL=False
+      - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: python test_organization_workflow.py
+
